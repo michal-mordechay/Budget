@@ -277,6 +277,20 @@
   .rule-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; }
   .rule-del:hover { color: var(--red); }
 
+  .txn-detail-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px; margin-top: 20px; box-shadow: var(--shadow);
+  }
+  .txn-detail-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .txn-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .txn-row:last-child { border-bottom: none; }
+  .txn-date { color: var(--text3); min-width: 75px; font-size: 12px; }
+  .txn-desc { flex: 1; color: var(--text); }
+  .txn-amount { font-weight: 600; min-width: 70px; text-align: left; }
+  .txn-cat-select { font-size: 12px; padding: 3px 6px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); }
+  .txn-source { font-size: 10px; color: var(--text3); padding: 2px 6px; background: var(--surface2); border-radius: 10px; }
+  .txn-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 0 4px; }
+  .txn-del:hover { color: var(--red); }
   /* ── Chart Overlay ── */
   .chart-overlay {
     display: none; position: fixed; inset: 0; z-index: 100;
@@ -445,6 +459,7 @@
       <button class="chart-close" onclick="closeChart()">✕ סגירה</button>
     </div>
     <div id="chartContent"></div>
+    <div id="txnDetail" style="display:none" class="txn-detail-panel"></div>
   </div>
 </div>
 
@@ -551,12 +566,13 @@ function getMonthKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 function getMonthData(mk) {
-  if (!state.months[mk]) state.months[mk] = { incomeILS:[], incomeSOL:[], actuals:{}, manualEntries:{} };
+  if (!state.months[mk]) state.months[mk] = { incomeILS:[], incomeSOL:[], actuals:{}, manualEntries:{}, pdfTxns:{} };
   const m = state.months[mk];
   if (!m.incomeILS) m.incomeILS = m.income || [];
   if (!m.incomeSOL) m.incomeSOL = [];
   if (!m.actuals) m.actuals = {};
   if (!m.manualEntries) m.manualEntries = {};
+  if (!m.pdfTxns) m.pdfTxns = {};
   return m;
 }
 function loadState() {
@@ -918,6 +934,17 @@ function addManualEntry(wid) {
   saveState();
 }
 function deleteManual(wid,idx){ const mk=getMonthKey(currentDate); getMonthData(mk).manualEntries[wid].splice(idx,1); saveState(); }
+function deletePdfTxn(wid,idx){ const mk=getMonthKey(currentDate); const md=getMonthData(mk); md.pdfTxns[wid].splice(idx,1); rebuildActuals(wid,mk,md); saveState(); }
+function reclassifyPdfTxn(wid,idx,newCat) {
+  const mk=getMonthKey(currentDate); const md=getMonthData(mk);
+  const txn = md.pdfTxns[wid][idx];
+  txn.cat = newCat;
+  // Learn rule from description
+  const kw = txn.desc.toLowerCase().trim().split(' ').slice(0,3).join(' ');
+  learnRule(wid, kw, newCat);
+  rebuildActuals(wid,mk,md);
+  saveState();
+}
 function addRule(wid){ const kw=document.getElementById('rule-kw-'+wid).value.trim(); const cat=document.getElementById('rule-cat-'+wid).value; if(!kw)return; learnRule(wid,kw,cat); document.getElementById('rule-kw-'+wid).value=''; }
 function deleteRule(wid,kw){ delete state.rules[wid][kw]; saveState(); }
 function updateRule(wid,kw,newCat){ state.rules[wid][kw]=newCat; saveState(); }
@@ -994,12 +1021,30 @@ function updateTxCat(wid,i,cat){ if(pendingTxns[wid]){ pendingTxns[wid][i].cat=c
 function toggleSkipTx(wid,i){ if(pendingTxns[wid]){ pendingTxns[wid][i].skip=!pendingTxns[wid][i].skip; renderPdfTxns(pendingTxns[wid],wid); } }
 function applyPdfTxns(wid) {
   const txns=pendingTxns[wid]||[]; const mk=getMonthKey(currentDate); const md=getMonthData(mk);
-  const w=WALLETS_DEF.find(x=>x.id===wid);
-  if(!md.actuals[wid]) md.actuals[wid]={};
-  w.categories.forEach(c=>{md.actuals[wid][c.id]=0;});
-  txns.filter(t=>!t.skip).forEach(t=>{md.actuals[wid][t.cat]=(md.actuals[wid][t.cat]||0)+t.amount;});
-  saveState(); document.getElementById('pdf-'+wid).classList.remove('open');
-  alert(`הוחלו ${txns.filter(t=>!t.skip).length} עסקאות`);
+  if(!md.pdfTxns) md.pdfTxns={};
+  if(!md.pdfTxns[wid]) md.pdfTxns[wid]=[];
+  // Append new transactions (don't wipe, allow multiple PDF uploads)
+  txns.filter(t=>!t.skip).forEach(t=>{
+    md.pdfTxns[wid].push({date:t.date, desc:t.desc, amount:t.amount, cat:t.cat, source:'pdf'});
+  });
+  // Rebuild actuals from pdfTxns + manualEntries
+  rebuildActuals(wid, mk, md);
+  saveState();
+  document.getElementById('pdf-'+wid).classList.remove('open');
+  alert('הוחלו '+txns.filter(t=>!t.skip).length+' עסקאות');
+}
+
+function rebuildActuals(wid, mk, md) {
+  const w = WALLETS_DEF.find(x=>x.id===wid);
+  if(!md.actuals) md.actuals={};
+  md.actuals[wid]={};
+  w.categories.forEach(c=>{ md.actuals[wid][c.id]=0; });
+  // Sum pdfTxns
+  (md.pdfTxns&&md.pdfTxns[wid]||[]).forEach(t=>{
+    if(md.actuals[wid][t.cat]!==undefined) md.actuals[wid][t.cat]+=t.amount;
+    else md.actuals[wid][t.cat]=t.amount;
+  });
+  // manualEntries are handled separately in getWalletTotal
 }
 
 // ═══════════════════════════════════
@@ -1021,9 +1066,10 @@ function openChart(wid) {
   const actuals = md.actuals[wid] || {};
   const manuals = md.manualEntries[wid] || [];
 
+  const pdfTxns = md.pdfTxns?.[wid] || [];
   const catData = w.categories.map(c => {
     const val = (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
-    return { name: c.name, val, budget: state.budgets[wid]?.[c.id]||0 };
+    return { id: c.id, name: c.name, val, budget: state.budgets[wid]?.[c.id]||0 };
   }).filter(d => d.val > 0);
 
   const total = catData.reduce((s,d)=>s+d.val,0);
@@ -1046,7 +1092,7 @@ function openChart(wid) {
   const topCats = [...catData].sort((a,b)=>b.val-a.val).slice(0,4);
 
   // Build HTML
-  let pieHtml = buildPie(catData, total, w.symbol);
+  let pieHtml = buildPie(catData, total, w.symbol, wid);
   let barHtml = buildBar(hist, maxHist, wid);
   let trendHtml = buildTrend(topCats, w, wid);
 
@@ -1058,7 +1104,7 @@ function openChart(wid) {
     </div>`;
 }
 
-function buildPie(catData, total, sym) {
+function buildPie(catData, total, sym, wid) {
   if (!total) return '<div class="text-small">אין נתונים לחודש זה</div>';
   let paths = '', cx=100, cy=100, r=80, startAngle=-Math.PI/2;
   catData.forEach((d,i) => {
@@ -1068,7 +1114,7 @@ function buildPie(catData, total, sym) {
     const x2=cx+r*Math.cos(endAngle), y2=cy+r*Math.sin(endAngle);
     const large = slice>Math.PI?1:0;
     const color = PIE_COLORS[i%PIE_COLORS.length];
-    paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z" fill="${color}" stroke="white" stroke-width="2"/>`;
+    const catId = wid ? catData[i].id : null; paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z" fill="${color}" stroke="white" stroke-width="2" ${catId ? `onclick="showTxnDetail('${wid}','${catId}')" style="cursor:pointer"` : ""}/>`;
     startAngle = endAngle;
   });
   const legend = catData.map((d,i) => `
@@ -1120,7 +1166,68 @@ function buildTrend(topCats, w, wid) {
   return `<div style="overflow-x:auto"><table class="trend-table">${headers}${rows}</table></div>`;
 }
 
-function closeChart() { document.getElementById('chartOverlay').classList.remove('open'); }
+function showTxnDetail(wid, catId) {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  const w = WALLETS_DEF.find(x=>x.id===wid);
+  const cat = w.categories.find(c=>c.id===catId);
+  const sym = w.symbol;
+
+  // Gather all transactions for this category
+  const pdfTxns = (md.pdfTxns?.[wid]||[]).map((t,i)=>({...t, source:'pdf', idx:i}));
+  const manTxns = (md.manualEntries?.[wid]||[]).map((t,i)=>({...t, source:'manual', idx:i}));
+  const allTxns = [...pdfTxns, ...manTxns].filter(t=>t.cat===catId);
+
+  const panel = document.getElementById('txnDetail');
+  panel.style.display = 'block';
+
+  if (!allTxns.length) {
+    panel.innerHTML = `<h3>${cat?.name || catId} <button onclick="document.getElementById('txnDetail').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px">×</button></h3><div class="text-small">אין עסקאות בקטגוריה זו — הנתון הוזן ידנית ב"ביצוע"</div>`;
+    panel.scrollIntoView({behavior:'smooth'});
+    return;
+  }
+
+  const catOpts = w.categories.map(cc=>`<option value="${cc.id}" ${cc.id===catId?'selected':''}>${cc.name}</option>`).join('');
+  const total = allTxns.reduce((s,t)=>s+(parseFloat(t.amount)||0),0);
+
+  const rows = allTxns.map(t => {
+    const reclassifyCall = t.source==='pdf'
+      ? `reclassifyPdfTxn('${wid}',${t.idx},this.value);showTxnDetail('${wid}','${catId}')`
+      : `reclassifyManualTxn('${wid}',${t.idx},this.value);showTxnDetail('${wid}','${catId}')`;
+    const deleteCall = t.source==='pdf'
+      ? `deletePdfTxn('${wid}',${t.idx});showTxnDetail('${wid}','${catId}')`
+      : `deleteManual('${wid}',${t.idx});showTxnDetail('${wid}','${catId}')`;
+    return `<div class="txn-row">
+      <span class="txn-date">${t.date||''}</span>
+      <span class="txn-desc">${t.desc}</span>
+      <span class="txn-source">${t.source==='pdf'?'PDF':'ידני'}</span>
+      <select class="txn-cat-select" onchange="${reclassifyCall}">${catOpts.replace(`value="${t.cat}"`,`value="${t.cat}" selected`)}</select>
+      <span class="txn-amount">${sym}${parseFloat(t.amount).toFixed(0)}</span>
+      <button class="txn-del" onclick="${deleteCall}">✕</button>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <h3>${cat?.name || catId} · ${sym}${total.toFixed(0)}
+      <button onclick="document.getElementById('txnDetail').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1">×</button>
+    </h3>
+    ${rows}`;
+  panel.scrollIntoView({behavior:'smooth'});
+}
+
+function reclassifyManualTxn(wid, idx, newCat) {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  md.manualEntries[wid][idx].cat = newCat;
+  const kw = md.manualEntries[wid][idx].desc.toLowerCase().trim().split(' ').slice(0,3).join(' ');
+  learnRule(wid, kw, newCat);
+  saveState();
+}
+
+function closeChart() {
+  document.getElementById('chartOverlay').classList.remove('open');
+  document.getElementById('txnDetail').style.display = 'none';
+}
 
 // ═══════════════════════════════════
 //  INIT
