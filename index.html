@@ -4,25 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>תקציב משפחתי — טובולסקי</title>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f0f13;
-    --surface: #17171e;
-    --surface2: #1e1e28;
-    --border: rgba(255,255,255,0.07);
-    --text: #f0ede8;
-    --text2: #8a8799;
-    --text3: #55535f;
-    --accent: #c8a96e;
-    --accent2: #7e6ef0;
-    --green: #5db882;
-    --red: #e06060;
-    --orange: #e09050;
-    --ils: #3a7bd5;
-    --sol: #c8a96e;
+    --bg: #f8f7f5;
+    --surface: #ffffff;
+    --surface2: #f2f1ef;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1a1a;
+    --text2: #5a5a5a;
+    --text3: #9a9a9a;
+    --accent: #b5935a;
+    --accent2: #5b4fcf;
+    --green: #2d8a55;
+    --green-bg: #edf7f2;
+    --red: #c0392b;
+    --red-bg: #fdf0ee;
+    --orange: #c87020;
+    --orange-bg: #fef6ec;
+    --ils: #2563a8;
+    --ils-bg: #eef4fc;
+    --sol: #b5935a;
+    --sol-bg: #faf5ec;
+    --dor: #5b4fcf;
+    --dor-bg: #f0eefb;
     --r: 12px;
     --r2: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -34,235 +44,285 @@
   }
 
   /* ── Layout ── */
-  .app { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+  .app { max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
 
   /* ── Header ── */
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 32px; padding-bottom: 20px;
-    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 28px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
   }
-  .header-title { font-family: 'Frank Ruhl Libre', serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .header-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; color: var(--text); }
   .header-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .month-nav { display: flex; align-items: center; gap: 12px; }
+  .month-nav { display: flex; align-items: center; gap: 10px; }
   .month-nav button {
-    background: var(--surface2); border: 0.5px solid var(--border);
-    color: var(--text2); border-radius: var(--r2); padding: 6px 12px;
-    cursor: pointer; font-family: 'Heebo', sans-serif; font-size: 13px;
-    transition: background 0.15s;
+    background: var(--surface); border: 1px solid var(--border2);
+    color: var(--text2); border-radius: var(--r2); padding: 6px 14px;
+    cursor: pointer; font-family: 'Heebo', sans-serif; font-size: 14px;
+    box-shadow: var(--shadow); transition: all 0.15s;
   }
-  .month-nav button:hover { background: var(--surface); color: var(--text); }
-  .month-label { font-size: 15px; font-weight: 500; min-width: 120px; text-align: center; }
+  .month-nav button:hover { background: var(--surface2); border-color: var(--border2); }
+  .month-label { font-size: 15px; font-weight: 600; min-width: 130px; text-align: center; color: var(--text); }
 
   /* ── Summary Bar ── */
   .summary-bar {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px; margin-bottom: 32px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px; margin-bottom: 28px;
   }
   .summary-card {
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: var(--r); padding: 16px 18px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 18px 20px;
+    box-shadow: var(--shadow); cursor: default;
   }
-  .summary-card.income { border-color: rgba(93,184,130,0.25); }
-  .summary-card.expense { border-color: rgba(224,96,96,0.25); }
-  .summary-card.balance { border-color: rgba(200,169,110,0.3); }
-  .sc-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-  .sc-value { font-size: 22px; font-weight: 500; }
+  .summary-card.clickable { cursor: pointer; transition: box-shadow 0.15s, transform 0.1s; }
+  .summary-card.clickable:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .summary-card.income { border-top: 3px solid var(--green); }
+  .summary-card.peru-card { border-top: 3px solid var(--sol); }
+  .summary-card.michal-card { border-top: 3px solid var(--ils); }
+  .summary-card.dor-card { border-top: 3px solid var(--dor); }
+  .summary-card.balance { border-top: 3px solid var(--accent); }
+  .sc-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 500; }
+  .sc-value { font-size: 24px; font-weight: 600; }
   .sc-value.green { color: var(--green); }
   .sc-value.red { color: var(--red); }
   .sc-value.gold { color: var(--accent); }
-  .sc-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .sc-value.sol { color: var(--sol); }
+  .sc-value.ils { color: var(--ils); }
+  .sc-value.dor { color: var(--dor); }
+  .sc-sub { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.5; }
   .sc-edit-btn {
     background: none; border: none; color: var(--text3); cursor: pointer;
     font-size: 11px; margin-top: 8px; padding: 0; font-family: 'Heebo', sans-serif;
     text-decoration: underline;
   }
-  .sc-edit-btn:hover { color: var(--text2); }
+  .sc-edit-btn:hover { color: var(--accent2); }
+  .sc-hint { font-size: 10px; color: var(--text3); margin-top: 6px; }
 
   /* ── Income Editor ── */
   .income-editor {
-    background: var(--surface2); border: 0.5px solid var(--border);
+    background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--r); padding: 20px; margin-bottom: 24px;
-    display: none;
+    display: none; box-shadow: var(--shadow);
   }
   .income-editor.open { display: block; }
-  .income-editor h3 { font-size: 14px; font-weight: 500; margin-bottom: 16px; color: var(--text2); }
+  .income-section-title {
+    font-size: 12px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin: 12px 0 8px; padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .income-section-title:first-child { margin-top: 0; padding-top: 0; border-top: none; }
   .income-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .income-row input[type="text"] { flex: 1; }
-  .income-row input[type="number"] { width: 140px; }
-  .income-row select { width: 80px; }
+  .income-row input[type="number"] { width: 130px; }
 
   /* ── Wallets ── */
-  .wallets { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  .wallets { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; }
   .wallet {
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: var(--r); overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow);
   }
   .wallet-header {
     padding: 16px 20px; display: flex; align-items: center;
-    justify-content: space-between; border-bottom: 0.5px solid var(--border);
+    justify-content: space-between; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none; transition: background 0.12s;
   }
-  .wallet-name { font-weight: 500; font-size: 15px; }
-  .wallet-currency {
-    font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500;
+  .wallet-header:hover { background: var(--surface2); }
+  .wallet-header-left { display: flex; align-items: center; gap: 10px; }
+  .wallet-name { font-weight: 600; font-size: 15px; }
+  .wallet-badge {
+    font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
   }
-  .wallet-currency.sol { background: rgba(200,169,110,0.15); color: var(--sol); }
-  .wallet-currency.ils { background: rgba(58,123,213,0.15); color: var(--ils); }
-  .wallet-total { font-size: 13px; color: var(--text2); }
-  .wallet-total strong { color: var(--text); }
+  .badge-sol { background: var(--sol-bg); color: var(--sol); }
+  .badge-ils { background: var(--ils-bg); color: var(--ils); }
+  .badge-dor { background: var(--dor-bg); color: var(--dor); }
+  .badge-placeholder { background: var(--orange-bg); color: var(--orange); }
+  .wallet-totals { text-align: left; }
+  .wallet-total-main { font-size: 16px; font-weight: 600; }
+  .wallet-total-sub { font-size: 11px; color: var(--text3); }
+  .wallet-chevron { color: var(--text3); font-size: 12px; transition: transform 0.2s; }
 
   /* ── Categories ── */
-  .categories { padding: 12px 0; }
-  .cat-row {
-    display: flex; align-items: center; padding: 8px 20px; gap: 10px;
-    border-bottom: 0.5px solid var(--border); transition: background 0.1s;
-  }
-  .cat-row:last-child { border-bottom: none; }
-  .cat-row:hover { background: var(--surface2); }
-  .cat-name { flex: 1; font-size: 13px; color: var(--text2); }
-  .cat-budget-input {
-    width: 90px; text-align: left; font-size: 13px;
-    background: var(--surface2); border: 0.5px solid var(--border);
-    border-radius: 6px; padding: 4px 8px; color: var(--text);
-    font-family: 'Heebo', sans-serif;
-  }
-  .cat-budget-input:focus { outline: none; border-color: var(--accent2); }
-  .cat-actual { width: 80px; text-align: left; font-size: 13px; color: var(--text2); }
-  .cat-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; }
-  .cat-bar { height: 4px; border-radius: 2px; transition: width 0.3s; }
-  .cat-bar.ok { background: var(--green); }
-  .cat-bar.warn { background: var(--orange); }
-  .cat-bar.over { background: var(--red); }
-  .cat-diff { width: 65px; text-align: left; font-size: 12px; }
-  .cat-diff.pos { color: var(--green); }
-  .cat-diff.neg { color: var(--red); }
-
+  .categories { padding: 8px 0; }
   .cat-header {
     display: flex; padding: 6px 20px; gap: 10px;
-    font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em;
+    font-size: 10px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.05em; border-bottom: 1px solid var(--border);
   }
   .cat-header span:first-child { flex: 1; }
   .cat-header span { width: 80px; text-align: left; }
   .cat-header span:nth-child(3) { width: 90px; }
-  .cat-header span:nth-child(5) { width: 65px; }
+  .cat-header span:nth-child(5) { width: 70px; }
+  .cat-row {
+    display: flex; align-items: center; padding: 8px 20px; gap: 10px;
+    border-bottom: 1px solid var(--border); transition: background 0.1s;
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-row:hover { background: var(--surface2); }
+  .cat-name { flex: 1; font-size: 13px; color: var(--text2); }
+  .cat-name.fixed { color: var(--text3); font-style: italic; }
+  .cat-budget-input {
+    width: 90px; text-align: left; font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 8px; color: var(--text);
+    font-family: 'Heebo', sans-serif;
+  }
+  .cat-budget-input:focus { outline: none; border-color: var(--accent2); }
+  .cat-actual { width: 80px; text-align: left; font-size: 13px; font-weight: 500; color: var(--text); }
+  .cat-bar-wrap { width: 80px; height: 4px; background: var(--border); border-radius: 2px; }
+  .cat-bar { height: 4px; border-radius: 2px; transition: width 0.3s; }
+  .cat-bar.ok { background: var(--green); }
+  .cat-bar.warn { background: var(--orange); }
+  .cat-bar.over { background: var(--red); }
+  .cat-diff { width: 70px; text-align: left; font-size: 11px; }
+  .cat-diff.pos { color: var(--green); }
+  .cat-diff.neg { color: var(--red); font-weight: 500; }
 
   /* ── Wallet Actions ── */
   .wallet-actions {
-    padding: 12px 20px; border-top: 0.5px solid var(--border);
-    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 10px 20px; border-top: 1px solid var(--border);
+    display: flex; gap: 8px; flex-wrap: wrap; background: var(--surface2);
   }
   .btn {
     padding: 7px 14px; border-radius: var(--r2); font-size: 12px;
     cursor: pointer; font-family: 'Heebo', sans-serif; font-weight: 500;
-    border: 0.5px solid var(--border); transition: all 0.15s;
+    border: 1px solid var(--border2); transition: all 0.15s;
   }
-  .btn-ghost { background: transparent; color: var(--text2); }
-  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-ghost { background: var(--surface); color: var(--text2); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
   .btn-primary { background: var(--accent2); color: white; border-color: var(--accent2); }
-  .btn-primary:hover { opacity: 0.85; }
-  .btn-green { background: rgba(93,184,130,0.15); color: var(--green); border-color: rgba(93,184,130,0.25); }
-  .btn-green:hover { background: rgba(93,184,130,0.25); }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-green { background: var(--green-bg); color: var(--green); border-color: rgba(45,138,85,0.2); }
+  .btn-green:hover { background: rgba(45,138,85,0.15); }
 
-  /* ── Manual Entry Panel ── */
-  .manual-panel {
-    background: var(--surface2); border-top: 0.5px solid var(--border);
-    padding: 16px 20px; display: none;
+  /* ── Panel base ── */
+  .panel {
+    border-top: 1px solid var(--border); padding: 18px 20px; display: none;
+    background: var(--surface);
   }
-  .manual-panel.open { display: block; }
-  .manual-panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
+  .panel.open { display: block; }
+  .panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 14px; font-weight: 600; }
+
+  /* ── Manual Entry ── */
   .manual-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
   .form-group { display: flex; flex-direction: column; gap: 4px; }
-  .form-group label { font-size: 11px; color: var(--text3); }
-  input, select, textarea {
-    background: var(--bg); border: 0.5px solid var(--border);
+  .form-group label { font-size: 11px; color: var(--text3); font-weight: 500; }
+  input, select {
+    background: var(--surface); border: 1px solid var(--border2);
     border-radius: var(--r2); padding: 7px 10px; color: var(--text);
     font-family: 'Heebo', sans-serif; font-size: 13px;
   }
-  input:focus, select:focus { outline: none; border-color: var(--accent2); }
-  select option { background: var(--surface); }
-  .manual-list { margin-top: 12px; }
+  input:focus, select:focus { outline: none; border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(91,79,207,0.1); }
+  .manual-list { margin-top: 14px; }
   .manual-item {
-    display: flex; align-items: center; gap: 8px; padding: 6px 0;
-    border-bottom: 0.5px solid var(--border); font-size: 12px;
+    display: flex; align-items: center; gap: 8px; padding: 7px 0;
+    border-bottom: 1px solid var(--border); font-size: 12px;
   }
   .manual-item:last-child { border-bottom: none; }
-  .manual-item-desc { flex: 1; color: var(--text2); }
-  .manual-item-cat { font-size: 11px; color: var(--text3); padding: 2px 6px; background: var(--surface); border-radius: 4px; }
-  .manual-item-amount { color: var(--text); font-weight: 500; }
+  .manual-item-desc { flex: 1; color: var(--text); }
+  .manual-item-cat { font-size: 11px; color: var(--text3); padding: 2px 7px; background: var(--surface2); border-radius: 4px; }
+  .manual-item-amount { color: var(--text); font-weight: 600; min-width: 60px; }
+  .manual-item-date { color: var(--text3); min-width: 80px; }
   .manual-item-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 0 4px; }
   .manual-item-del:hover { color: var(--red); }
 
   /* ── PDF Panel ── */
-  .pdf-panel {
-    background: var(--surface2); border-top: 0.5px solid var(--border);
-    padding: 16px 20px; display: none;
-  }
-  .pdf-panel.open { display: block; }
-  .pdf-panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
   .pdf-drop {
-    border: 1.5px dashed var(--border); border-radius: var(--r);
-    padding: 24px; text-align: center; cursor: pointer;
-    transition: border-color 0.15s; color: var(--text3); font-size: 13px;
+    border: 1.5px dashed var(--border2); border-radius: var(--r);
+    padding: 28px; text-align: center; cursor: pointer;
+    transition: all 0.15s; color: var(--text3); font-size: 13px; background: var(--surface2);
   }
-  .pdf-drop:hover { border-color: var(--accent2); color: var(--text2); }
-  .pdf-drop.drag { border-color: var(--accent2); background: rgba(126,110,240,0.05); }
-  .pdf-transactions { margin-top: 12px; }
+  .pdf-drop:hover { border-color: var(--accent2); color: var(--text2); background: #f0eefb; }
+  .pdf-drop.drag { border-color: var(--accent2); background: #f0eefb; }
+  .pdf-transactions { margin-top: 14px; }
   .pdf-tx {
     display: flex; align-items: center; gap: 8px; padding: 7px 0;
-    border-bottom: 0.5px solid var(--border); font-size: 12px;
+    border-bottom: 1px solid var(--border); font-size: 12px;
   }
   .pdf-tx:last-child { border-bottom: none; }
   .pdf-tx-date { color: var(--text3); min-width: 70px; }
-  .pdf-tx-desc { flex: 1; color: var(--text2); }
+  .pdf-tx-desc { flex: 1; color: var(--text); }
   .pdf-tx-cat select { font-size: 11px; padding: 3px 6px; }
-  .pdf-tx-amount { color: var(--text); font-weight: 500; min-width: 70px; text-align: left; }
+  .pdf-tx-amount { color: var(--text); font-weight: 600; min-width: 70px; text-align: left; }
   .pdf-tx-skip { font-size: 11px; color: var(--text3); cursor: pointer; }
   .pdf-tx-skip:hover { color: var(--red); }
-  .pdf-tx.skipped { opacity: 0.4; }
-  .pdf-apply-btn { margin-top: 12px; }
+  .pdf-tx.skipped { opacity: 0.35; }
 
-  /* ── Category Rules ── */
-  .rules-panel {
-    background: var(--surface2); border-top: 0.5px solid var(--border);
-    padding: 16px 20px; display: none;
-  }
-  .rules-panel.open { display: block; }
-  .rules-panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
-  .rule-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 12px; }
-  .rule-keyword { flex: 1; color: var(--text); }
-  .rule-cat { color: var(--text3); }
+  /* ── Rules ── */
+  .rule-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .rule-row:last-child { border-bottom: none; }
+  .rule-keyword { flex: 1; color: var(--text); font-weight: 500; }
+  .rule-arrow { color: var(--text3); }
+  .rule-cat { color: var(--text2); }
   .rule-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; }
   .rule-del:hover { color: var(--red); }
 
-  /* ── Tags / pills ── */
-  .tag {
-    display: inline-block; padding: 2px 8px; border-radius: 10px;
-    font-size: 10px; font-weight: 500;
+  /* ── Chart Overlay ── */
+  .chart-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(248,247,245,0.96); overflow-y: auto;
   }
-  .tag-peru { background: rgba(200,169,110,0.12); color: var(--sol); }
-  .tag-michal { background: rgba(58,123,213,0.12); color: var(--ils); }
-  .tag-dor { background: rgba(126,110,240,0.12); color: var(--accent2); }
+  .chart-overlay.open { display: block; }
+  .chart-page { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+  .chart-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px; padding-bottom: 18px; border-bottom: 1px solid var(--border);
+  }
+  .chart-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; }
+  .chart-close {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--r2); padding: 8px 18px; cursor: pointer;
+    font-family: 'Heebo', sans-serif; font-size: 13px; font-weight: 500;
+    box-shadow: var(--shadow);
+  }
+  .chart-close:hover { background: var(--surface2); }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px; box-shadow: var(--shadow);
+  }
+  .chart-card.full { grid-column: 1 / -1; }
+  .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 18px; color: var(--text); }
+  .pie-wrap { position: relative; width: 200px; height: 200px; margin: 0 auto; }
+  .pie-legend { margin-top: 16px; }
+  .pie-legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border);
+  }
+  .pie-legend-item:last-child { border-bottom: none; }
+  .pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .pie-legend-name { flex: 1; color: var(--text2); }
+  .pie-legend-val { font-weight: 600; color: var(--text); }
+  .pie-legend-pct { color: var(--text3); font-size: 11px; min-width: 35px; text-align: left; }
+  .bar-chart-wrap { overflow-x: auto; }
+  .bar-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  }
+  .bar-label { width: 80px; font-size: 12px; color: var(--text2); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-outer { flex: 1; height: 22px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; }
+  .bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
+  .bar-val { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 600; color: white; }
+  .trend-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .trend-table th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--text3); font-weight: 500; }
+  .trend-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  .trend-table tr:last-child td { border-bottom: none; }
+  .trend-table td:first-child { color: var(--text2); font-weight: 500; }
+  .trend-val { font-weight: 500; }
+  .trend-up { color: var(--red); }
+  .trend-down { color: var(--green); }
 
-  /* ── Utilities ── */
-  .flex-between { display: flex; justify-content: space-between; align-items: center; }
-  .mt8 { margin-top: 8px; }
-  .mt12 { margin-top: 12px; }
-  .divider { height: 0.5px; background: var(--border); margin: 12px 0; }
+  /* ── Misc ── */
   .text-small { font-size: 11px; color: var(--text3); }
   .placeholder-note {
-    font-size: 11px; color: var(--text3); font-style: italic;
-    padding: 4px 8px; background: rgba(255,255,255,0.03); border-radius: 4px;
+    font-size: 12px; color: var(--orange); padding: 10px 20px;
+    background: var(--orange-bg); border-top: 1px solid rgba(200,112,32,0.15);
   }
-
-  /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
-
-  /* ── Responsive ── */
+  ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
   @media (max-width: 700px) {
     .wallets { grid-template-columns: 1fr; }
     .summary-bar { grid-template-columns: 1fr 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -276,143 +336,167 @@
       <div class="header-sub">מעקב הוצאות משפחתי · פרו + ישראל</div>
     </div>
     <div class="month-nav">
-      <button onclick="changeMonth(-1)">&#8250;</button>
+      <button onclick="changeMonth(-1)">›</button>
       <div class="month-label" id="monthLabel"></div>
-      <button onclick="changeMonth(1)">&#8249;</button>
+      <button onclick="changeMonth(1)">‹</button>
     </div>
   </div>
 
   <!-- Summary Bar -->
   <div class="summary-bar">
     <div class="summary-card income">
-      <div class="sc-label">הכנסות החודש</div>
-      <div class="sc-value green" id="totalIncome">₪0</div>
-      <div class="sc-sub" id="incomeBreakdown">לא הוזן עדיין</div>
+      <div class="sc-label">הכנסות</div>
+      <div id="incSumWrap"></div>
       <button class="sc-edit-btn" onclick="toggleIncomeEditor()">✏ עריכה</button>
     </div>
-    <div class="summary-card expense">
+    <div class="summary-card peru-card clickable" onclick="openChart('peru')">
       <div class="sc-label">הוצאות פרו</div>
-      <div class="sc-value" id="totalPeru" style="color:var(--sol)">S/0</div>
+      <div class="sc-value sol" id="totalPeru">S/0</div>
       <div class="sc-sub" id="peruVsBudget"></div>
+      <div class="sc-hint">לחץ לניתוח ↗</div>
     </div>
-    <div class="summary-card expense">
-      <div class="sc-label">הוצאות ישראל</div>
-      <div class="sc-value" id="totalIsrael" style="color:var(--ils)">₪0</div>
-      <div class="sc-sub" id="israelVsBudget"></div>
+    <div class="summary-card michal-card clickable" onclick="openChart('michal')">
+      <div class="sc-label">ישראל — מיכל</div>
+      <div class="sc-value ils" id="totalMichal">₪0</div>
+      <div class="sc-sub" id="michalVsBudget"></div>
+      <div class="sc-hint">לחץ לניתוח ↗</div>
+    </div>
+    <div class="summary-card dor-card clickable" onclick="openChart('dor')">
+      <div class="sc-label">ישראל — דור</div>
+      <div class="sc-value dor" id="totalDor">₪0</div>
+      <div class="sc-sub" id="dorVsBudget"></div>
+      <div class="sc-hint">לחץ לניתוח ↗</div>
     </div>
     <div class="summary-card balance">
-      <div class="sc-label">יתרה משוערת</div>
+      <div class="sc-label">יתרה ₪</div>
       <div class="sc-value gold" id="balanceVal">—</div>
-      <div class="sc-sub" id="balanceSub">הכנסות פחות הוצאות</div>
+      <div class="sc-sub" id="balanceSub"></div>
     </div>
   </div>
 
   <!-- Income Editor -->
   <div class="income-editor" id="incomeEditor">
-    <h3>הכנסות החודש</h3>
-    <div id="incomeRows"></div>
-    <div style="display:flex; gap:8px; margin-top:8px;">
-      <button class="btn btn-ghost" onclick="addIncomeRow()">+ הוספת שורה</button>
+    <div class="income-section-title">הכנסות בשקלים (ישראל)</div>
+    <div id="incomeRowsILS"></div>
+    <button class="btn btn-ghost" style="font-size:12px;margin-bottom:8px" onclick="addIncomeRow('ILS')">+ שורה</button>
+    <div class="income-section-title">הכנסות בסולס (פרו)</div>
+    <div id="incomeRowsSOL"></div>
+    <button class="btn btn-ghost" style="font-size:12px;margin-bottom:12px" onclick="addIncomeRow('SOL')">+ שורה</button>
+    <div style="display:flex;gap:8px;margin-top:4px;">
       <button class="btn btn-green" onclick="saveIncome()">שמירה</button>
     </div>
   </div>
 
   <!-- Wallets -->
   <div class="wallets" id="wallets"></div>
+</div>
 
+<!-- Chart Overlay -->
+<div class="chart-overlay" id="chartOverlay">
+  <div class="chart-page">
+    <div class="chart-header">
+      <div class="chart-title" id="chartTitle"></div>
+      <button class="chart-close" onclick="closeChart()">✕ סגירה</button>
+    </div>
+    <div id="chartContent"></div>
+  </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 //  DATA MODEL
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 
 const WALLETS_DEF = [
   {
-    id: 'peru',
-    name: 'פרו',
-    currency: 'SOL',
-    symbol: 'S/',
-    tag: 'tag-peru',
+    id: 'peru', name: 'פרו', currency: 'SOL', symbol: 'S/',
+    badge: 'badge-sol', badgeLabel: 'S/',
     categories: [
-      { id: 'supermarket', name: 'סופרמרקט / מכולת', budget: 2800 },
-      { id: 'restaurant',  name: 'מסעדות וקפה',       budget: 1600 },
-      { id: 'meat',        name: 'בשר / Fresquicarnes', budget: 350 },
-      { id: 'health',      name: 'בריאות / תרופות',   budget: 400 },
-      { id: 'kids',        name: 'ילדים / תינוק',      budget: 250 },
-      { id: 'clothes',     name: 'קניות / ביגוד',      budget: 400 },
-      { id: 'transport',   name: 'תחבורה (Uber)',       budget: 250 },
-      { id: 'home',        name: 'בית / ציוד',          budget: 280 },
-      { id: 'beauty',      name: 'ספא / יופי',          budget: 120 },
-      { id: 'househelp',   name: 'עזרה בבית',           budget: 150 },
-      { id: 'misc',        name: 'שונות',               budget: 300 },
+      { id: 'supermarket', name: 'סופרמרקט / מכולת',     budget: 2800 },
+      { id: 'restaurant',  name: 'מסעדות וקפה',           budget: 1600 },
+      { id: 'meat',        name: 'בשר / Fresquicarnes',   budget: 350  },
+      { id: 'health',      name: 'בריאות / תרופות',       budget: 400  },
+      { id: 'kids',        name: 'ילדים / תינוק',          budget: 250  },
+      { id: 'clothes',     name: 'קניות / ביגוד',          budget: 400  },
+      { id: 'transport',   name: 'תחבורה (Uber)',          budget: 250  },
+      { id: 'home',        name: 'בית / ציוד',             budget: 280  },
+      { id: 'beauty',      name: 'ספא / יופי',             budget: 120  },
+      { id: 'julie',       name: "ג'ולי (עזרה בבית)",      budget: 2200, fixed: true },
+      { id: 'suzana',      name: 'סוזנה (עזרה בבית)',      budget: 1800, fixed: true },
+      { id: 'misc',        name: 'שונות',                  budget: 300  },
     ]
   },
   {
-    id: 'michal',
-    name: 'ישראל — מיכל',
-    currency: 'ILS',
-    symbol: '₪',
-    tag: 'tag-michal',
+    id: 'michal', name: 'ישראל — מיכל', currency: 'ILS', symbol: '₪',
+    badge: 'badge-ils', badgeLabel: '₪',
     categories: [
       { id: 'insurance_health', name: 'ביטוח בריאות (הראל + כללית)', budget: 338 },
-      { id: 'insurance_life',   name: 'ביטוח חיים (הראל)',           budget: 48  },
-      { id: 'phone',            name: 'טלפון (טלזר 019)',             budget: 20  },
-      { id: 'subscriptions',    name: 'מנויים (Adobe, Spotify)',      budget: 130 },
-      { id: 'card_fee',         name: 'דמי כרטיס',                   budget: 19  },
-      { id: 'misc_il',          name: 'שונות',                       budget: 100 },
+      { id: 'insurance_life',   name: 'ביטוח חיים (הראל)',            budget: 48  },
+      { id: 'phone',            name: 'טלפון (טלזר 019)',              budget: 20  },
+      { id: 'subscriptions',    name: 'מנויים (Adobe, Spotify)',       budget: 130 },
+      { id: 'card_fee',         name: 'דמי כרטיס',                    budget: 19  },
+      { id: 'misc_il',          name: 'שונות',                        budget: 100 },
     ]
   },
   {
-    id: 'dor',
-    name: 'ישראל — דור',
-    currency: 'ILS',
-    symbol: '₪',
-    tag: 'tag-dor',
+    id: 'dor', name: 'ישראל — דור', currency: 'ILS', symbol: '₪',
+    badge: 'badge-dor', badgeLabel: '₪',
+    placeholder: true,
     categories: [
-      { id: 'insurance_d',     name: 'ביטוחים',    budget: 0 },
-      { id: 'subscriptions_d', name: 'מנויים',     budget: 0 },
-      { id: 'misc_d',          name: 'שונות',       budget: 0 },
-    ],
-    placeholder: true
+      { id: 'insurance_d',     name: 'ביטוחים',   budget: 0 },
+      { id: 'subscriptions_d', name: 'מנויים',    budget: 0 },
+      { id: 'misc_d',          name: 'שונות',      budget: 0 },
+    ]
   },
 ];
 
-// Default classification rules: keyword → category id (per wallet)
 const DEFAULT_RULES = {
   peru: {
-    'wong': 'supermarket', 'tottus': 'supermarket', 'vivanda': 'supermarket',
-    'rappi': 'supermarket', 'makro': 'supermarket', 'compania food': 'supermarket',
-    'carestino': 'supermarket', 'alimentando': 'supermarket', 'mercattino': 'supermarket',
-    'wong online': 'supermarket', 'jet market': 'supermarket', 'estacion': 'supermarket',
-    'fresquicarnes': 'meat', 'fresquilamar': 'meat',
-    'restaurante': 'restaurant', 'mozart': 'restaurant', 'talbot': 'restaurant',
-    'cafeteria': 'restaurant', 'cafe': 'restaurant', 'starbucks': 'restaurant',
-    'napoleon': 'restaurant', 'la cristina': 'restaurant', 'sienna bakery': 'restaurant',
-    'hebraica': 'restaurant', 'amador': 'restaurant', 'hanzo': 'restaurant',
-    'lila': 'restaurant', 'pastipan': 'restaurant', 'flor que latte': 'restaurant',
-    'mifarma': 'health', 'inkafarma': 'health', 'clinica': 'health', 'farmacia': 'health',
-    'uber': 'transport', 'taxi': 'transport', 'apparka': 'transport', 'peaje': 'transport',
-    'falabella': 'clothes', 'zara': 'clothes', 'gap': 'clothes',
-    'sodimac': 'home', 'eden agua': 'home', 'liderman': 'home', 'casa ideas': 'home',
-    'mori valles': 'beauty', 'salon': 'beauty', 'maribeat': 'beauty',
-    'nuababy': 'kids', 'magiape': 'kids', 'infanti': 'kids',
-    'silvana': 'househelp',
+    'wong':'supermarket','tottus':'supermarket','vivanda':'supermarket',
+    'rappi':'supermarket','makro':'supermarket','compania food':'supermarket',
+    'carestino':'supermarket','alimentando':'supermarket','mercattino':'supermarket',
+    'jet market':'supermarket','estacion':'supermarket','la sanahoria':'supermarket',
+    'fresquicarnes':'meat','fresquilamar':'meat',
+    'restaurante':'restaurant','mozart':'restaurant','talbot':'restaurant',
+    'cafeteria':'restaurant','cafe':'restaurant','starbucks':'restaurant',
+    'napoleon':'restaurant','la cristina':'restaurant','sienna bakery':'restaurant',
+    'hebraica':'restaurant','amador':'restaurant','hanzo':'restaurant',
+    'lila':'restaurant','pastipan':'restaurant','flor que latte':'restaurant',
+    'mifarma':'health','inkafarma':'health','clinica':'health','farmacia':'health',
+    'uber':'transport','taxi':'transport','apparka':'transport','peaje':'transport',
+    'falabella':'clothes','zara':'clothes','gap':'clothes','ishop':'clothes',
+    'sodimac':'home','eden agua':'home','liderman':'home','casa ideas':'home',
+    'mori valles':'beauty','salon':'beauty','maribeat':'beauty',
+    'nuababy':'kids','magiape':'kids','infanti':'kids',
+    'julie':'julie','suzana':'suzana',
   },
   michal: {
-    'הראל ביטוח בריאות': 'insurance_health', 'שרותי בריאות': 'insurance_health',
-    'סעוד הראל': 'insurance_health',
-    'הראל ביטוח חיים': 'insurance_life',
-    'טלזר': 'phone',
-    'spotify': 'subscriptions', 'adobe': 'subscriptions', 'albume': 'subscriptions',
-    'דמי כרטיס': 'card_fee',
+    'הראל ביטוח בריאות':'insurance_health','שרותי בריאות':'insurance_health','סעוד הראל':'insurance_health',
+    'הראל ביטוח חיים':'insurance_life',
+    'טלזר':'phone',
+    'spotify':'subscriptions','adobe':'subscriptions','albume':'subscriptions',
+    'דמי כרטיס':'card_fee',
   },
   dor: {},
 };
 
-// ═══════════════════════════════════════════════
+// Historical actuals
+const HISTORICAL_ACTUALS = {
+  "2025-09": { peru: { supermarket:1764, restaurant:452, meat:0, health:32, kids:0, clothes:0, transport:193, home:28, beauty:50, julie:2200, suzana:1800, misc:40 } },
+  "2025-10": { peru: { supermarket:2834, restaurant:940, meat:207, health:278, kids:0, clothes:293, transport:511, home:219, beauty:50, julie:2200, suzana:1800, misc:63 } },
+  "2025-11": { peru: { supermarket:3980, restaurant:1606, meat:711, health:142, kids:0, clothes:1207, transport:373, home:642, beauty:0, julie:2200, suzana:1800, misc:51 } },
+  "2025-12": { peru: { supermarket:3546, restaurant:2400, meat:0, health:1838, kids:0, clothes:605, transport:301, home:306, beauty:206, julie:2200, suzana:1800, misc:80 } },
+  "2026-01": { peru: { supermarket:2568, restaurant:2606, meat:818, health:1824, kids:1210, clothes:1185, transport:290, home:151, beauty:180, julie:2200, suzana:1800, misc:420 } },
+  "2026-02": { peru: { supermarket:3010, restaurant:2130, meat:0, health:1524, kids:19, clothes:565, transport:107, home:438, beauty:246, julie:2200, suzana:1800, misc:823 } },
+  "2026-03": { peru: { supermarket:1980, restaurant:976, meat:209, health:122, kids:220, clothes:2217, transport:165, home:115, beauty:50, julie:2200, suzana:1800, misc:977 } },
+  "2026-04": { peru: { supermarket:1559, restaurant:529, meat:269, health:0, kids:207, clothes:0, transport:8, home:100, beauty:38, julie:2200, suzana:1800, misc:248 },
+               michal: { insurance_health:336, insurance_life:48, phone:20, subscriptions:129, card_fee:0, misc_il:11 } },
+  "2026-05": { michal: { insurance_health:338, insurance_life:0, phone:0, subscriptions:470, card_fee:19, misc_il:155 } },
+};
+
+// ═══════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 
 let currentDate = new Date();
 let state = loadState();
@@ -420,250 +504,236 @@ let state = loadState();
 function getMonthKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
-
 function getMonthData(mk) {
-  if (!state.months[mk]) {
-    state.months[mk] = { income: [], actuals: {}, manualEntries: {} };
-  }
+  if (!state.months[mk]) state.months[mk] = { incomeILS:[], incomeSOL:[], actuals:{}, manualEntries:{} };
   const m = state.months[mk];
-  if (!m.income) m.income = [];
+  if (!m.incomeILS) m.incomeILS = m.income || [];
+  if (!m.incomeSOL) m.incomeSOL = [];
   if (!m.actuals) m.actuals = {};
   if (!m.manualEntries) m.manualEntries = {};
   return m;
 }
-
 function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem('tobolski_budget_v1') || '{}');
     if (!s.months) s.months = {};
     if (!s.budgets) {
       s.budgets = {};
-      WALLETS_DEF.forEach(w => {
-        s.budgets[w.id] = {};
-        w.categories.forEach(c => { s.budgets[w.id][c.id] = c.budget; });
-      });
+      WALLETS_DEF.forEach(w => { s.budgets[w.id] = {}; w.categories.forEach(c => { s.budgets[w.id][c.id] = c.budget; }); });
     }
     if (!s.rules) s.rules = JSON.parse(JSON.stringify(DEFAULT_RULES));
+    // Migrate: old income[] → incomeILS[]
+    Object.values(s.months).forEach(m => {
+      if (m.income && !m.incomeILS) { m.incomeILS = m.income; delete m.income; }
+      if (!m.incomeSOL) m.incomeSOL = [];
+    });
+    // Migrate: add julie/suzana budgets if missing
+    if (s.budgets && s.budgets.peru) {
+      if (!s.budgets.peru.julie) s.budgets.peru.julie = 2200;
+      if (!s.budgets.peru.suzana) s.budgets.peru.suzana = 1800;
+    }
     return s;
-  } catch(e) { return { months: {}, budgets: {}, rules: JSON.parse(JSON.stringify(DEFAULT_RULES)) }; }
+  } catch(e) { return { months:{}, budgets:{}, rules:JSON.parse(JSON.stringify(DEFAULT_RULES)) }; }
 }
+function saveState() { localStorage.setItem('tobolski_budget_v1', JSON.stringify(state)); render(); }
 
-function saveState() {
+function seedHistoricalData() {
+  Object.entries(HISTORICAL_ACTUALS).forEach(([mk, walletData]) => {
+    if (!state.months[mk]) state.months[mk] = { incomeILS:[], incomeSOL:[], actuals:{}, manualEntries:{} };
+    const m = state.months[mk];
+    if (!m.incomeILS) m.incomeILS = [];
+    if (!m.incomeSOL) m.incomeSOL = [];
+    Object.entries(walletData).forEach(([wid, cats]) => {
+      if (!m.actuals[wid] || Object.keys(m.actuals[wid]).length === 0) m.actuals[wid] = { ...cats };
+    });
+  });
   localStorage.setItem('tobolski_budget_v1', JSON.stringify(state));
-  render();
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 //  CLASSIFICATION
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 
-function classify(walletId, description) {
+function classify(walletId, desc) {
   const rules = state.rules[walletId] || {};
-  const desc = description.toLowerCase();
-  for (const [keyword, catId] of Object.entries(rules)) {
-    if (desc.includes(keyword.toLowerCase())) return catId;
-  }
+  const d = desc.toLowerCase();
+  for (const [kw, catId] of Object.entries(rules)) { if (d.includes(kw.toLowerCase())) return catId; }
   return 'misc';
 }
-
 function learnRule(walletId, keyword, catId) {
   if (!state.rules[walletId]) state.rules[walletId] = {};
   state.rules[walletId][keyword.toLowerCase().trim()] = catId;
   saveState();
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 //  RENDER
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
+
+function getWalletTotal(w, mk) {
+  const md = getMonthData(mk);
+  const actuals = md.actuals[w.id] || {};
+  const manuals = md.manualEntries[w.id] || [];
+  let t = 0;
+  w.categories.forEach(c => {
+    t += (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
+  });
+  return t;
+}
+function getWalletBudget(w) {
+  return w.categories.reduce((s,c)=>(s+(state.budgets[w.id]?.[c.id]||0)),0);
+}
 
 function render() {
   const mk = getMonthKey(currentDate);
   const md = getMonthData(mk);
+  const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  document.getElementById('monthLabel').textContent = `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
-  // Month label
-  const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  document.getElementById('monthLabel').textContent = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+  const totalILS = (md.incomeILS||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const totalSOL = (md.incomeSOL||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  let incHtml = '';
+  if (totalILS > 0) incHtml += `<div class="sc-value ils">₪${totalILS.toLocaleString('he-IL',{maximumFractionDigits:0})}</div>`;
+  if (totalSOL > 0) incHtml += `<div class="sc-value sol" style="font-size:18px;margin-top:2px">S/${totalSOL.toLocaleString('es-PE',{maximumFractionDigits:0})}</div>`;
+  if (!totalILS && !totalSOL) incHtml = `<div class="sc-value" style="color:var(--text3);font-size:16px">לא הוזן</div>`;
+  document.getElementById('incSumWrap').innerHTML = incHtml;
 
-  // Income total
-  const totalIncome = md.income.reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
-  document.getElementById('totalIncome').textContent = '₪' + totalIncome.toLocaleString('he-IL', {maximumFractionDigits:0});
-  document.getElementById('incomeBreakdown').textContent = md.income.length ?
-    md.income.map(r => `${r.label}: ₪${parseFloat(r.amount).toLocaleString('he-IL',{maximumFractionDigits:0})}`).join(' · ') :
-    'לחץ על עריכה להוספת הכנסות';
+  const peruW = WALLETS_DEF.find(w=>w.id==='peru');
+  const michalW = WALLETS_DEF.find(w=>w.id==='michal');
+  const dorW = WALLETS_DEF.find(w=>w.id==='dor');
 
-  // Wallet totals
-  let totalPeru = 0, totalIsrael = 0;
-  WALLETS_DEF.forEach(w => {
-    const actuals = md.actuals[w.id] || {};
-    const manuals = md.manualEntries[w.id] || [];
-    let total = 0;
-    w.categories.forEach(c => { total += (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0); });
-    if (w.currency==='SOL') totalPeru += total;
-    else totalIsrael += total;
-  });
+  const peruTotal = getWalletTotal(peruW, mk);
+  const michalTotal = getWalletTotal(michalW, mk);
+  const dorTotal = getWalletTotal(dorW, mk);
 
-  const peruBudget = WALLETS_DEF.find(w=>w.id==='peru').categories.reduce((s,c)=>s+(state.budgets.peru[c.id]||0),0);
-  const israelBudget = ['michal','dor'].reduce((s,wid)=>{
-    const w = WALLETS_DEF.find(x=>x.id===wid);
-    return s + w.categories.reduce((ss,c)=>ss+(state.budgets[wid]?.[c.id]||0),0);
-  },0);
+  document.getElementById('totalPeru').textContent = 'S/'+peruTotal.toLocaleString('es-PE',{maximumFractionDigits:0});
+  document.getElementById('peruVsBudget').textContent = `תקציב: S/${getWalletBudget(peruW).toLocaleString('es-PE',{maximumFractionDigits:0})}`;
+  document.getElementById('totalMichal').textContent = '₪'+michalTotal.toLocaleString('he-IL',{maximumFractionDigits:0});
+  document.getElementById('michalVsBudget').textContent = `תקציב: ₪${getWalletBudget(michalW).toLocaleString('he-IL',{maximumFractionDigits:0})}`;
+  document.getElementById('totalDor').textContent = '₪'+dorTotal.toLocaleString('he-IL',{maximumFractionDigits:0});
+  document.getElementById('dorVsBudget').textContent = `תקציב: ₪${getWalletBudget(dorW).toLocaleString('he-IL',{maximumFractionDigits:0})}`;
 
-  document.getElementById('totalPeru').textContent = 'S/' + totalPeru.toLocaleString('es-PE', {maximumFractionDigits:0});
-  document.getElementById('peruVsBudget').textContent = `תקציב: S/${peruBudget.toLocaleString('es-PE',{maximumFractionDigits:0})}`;
-  document.getElementById('totalIsrael').textContent = '₪' + totalIsrael.toLocaleString('he-IL', {maximumFractionDigits:0});
-  document.getElementById('israelVsBudget').textContent = `תקציב: ₪${israelBudget.toLocaleString('he-IL',{maximumFractionDigits:0})}`;
-
-  // Balance (rough: income - israel expenses; peru separate currency)
-  if (totalIncome > 0) {
-    const bal = totalIncome - totalIsrael;
-    document.getElementById('balanceVal').textContent = '₪' + bal.toLocaleString('he-IL',{maximumFractionDigits:0});
-    document.getElementById('balanceVal').className = 'sc-value ' + (bal >= 0 ? 'green' : 'red');
-    document.getElementById('balanceSub').textContent = 'הכנסות פחות ישראל (פרו נפרד)';
+  const israelTotal = michalTotal + dorTotal;
+  if (totalILS > 0) {
+    const bal = totalILS - israelTotal;
+    document.getElementById('balanceVal').textContent = '₪'+bal.toLocaleString('he-IL',{maximumFractionDigits:0});
+    document.getElementById('balanceVal').className = 'sc-value '+(bal>=0?'green':'red');
+    document.getElementById('balanceSub').textContent = 'הכנסות ₪ פחות הוצאות ישראל';
   } else {
     document.getElementById('balanceVal').textContent = '—';
     document.getElementById('balanceVal').className = 'sc-value gold';
+    document.getElementById('balanceSub').textContent = 'הכנס הכנסות לחישוב';
   }
 
-  // Render wallets
   renderWallets(mk, md);
 }
 
 function renderWallets(mk, md) {
-  const container = document.getElementById('wallets');
-  container.innerHTML = '';
-  WALLETS_DEF.forEach(w => renderWallet(w, mk, md, container));
+  const c = document.getElementById('wallets');
+  c.innerHTML = '';
+  WALLETS_DEF.forEach(w => renderWallet(w, mk, md, c));
 }
 
 function renderWallet(w, mk, md, container) {
   const actuals = md.actuals[w.id] || {};
   const manuals = md.manualEntries[w.id] || [];
   const budgets = state.budgets[w.id] || {};
+  const sym = w.symbol;
 
-  let walletTotal = 0;
-  let walletBudget = 0;
+  let walletTotal = 0, walletBudget = 0;
   w.categories.forEach(c => {
     const a = (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
-    walletTotal += a;
-    walletBudget += (budgets[c.id]||0);
+    walletTotal += a; walletBudget += (budgets[c.id]||0);
   });
-
-  const el = document.createElement('div');
-  el.className = 'wallet';
-  el.id = 'wallet-' + w.id;
-
-  const currClass = w.currency === 'SOL' ? 'sol' : 'ils';
-  const sym = w.symbol;
 
   let catRows = '';
   w.categories.forEach(c => {
     const actual = (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
     const budget = budgets[c.id] || 0;
-    const pct = budget > 0 ? Math.min((actual/budget)*100, 100) : (actual > 0 ? 100 : 0);
-    const barClass = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    const pct = budget > 0 ? Math.min((actual/budget)*100,100) : (actual>0?100:0);
+    const barClass = pct>=100?'over':pct>=80?'warn':'ok';
     const diff = budget - actual;
-    const diffClass = diff >= 0 ? 'pos' : 'neg';
-    const diffText = diff >= 0 ? `נשאר ${sym}${Math.abs(diff).toFixed(0)}` : `חריגה ${sym}${Math.abs(diff).toFixed(0)}`;
-
-    catRows += `
-      <div class="cat-row">
-        <span class="cat-name">${c.name}</span>
-        <span class="cat-actual">${sym}${actual.toFixed(0)}</span>
-        <input class="cat-budget-input" type="number" value="${budget}"
-          onchange="updateBudget('${w.id}','${c.id}',this.value)"
-          title="תקציב">
-        <div class="cat-bar-wrap"><div class="cat-bar ${barClass}" style="width:${pct}%"></div></div>
-        <span class="cat-diff ${diffClass}">${budget > 0 || actual > 0 ? diffText : ''}</span>
-      </div>`;
+    const diffText = budget>0||actual>0 ? (diff>=0?`נשאר ${sym}${Math.abs(diff).toFixed(0)}`:`חריגה ${sym}${Math.abs(diff).toFixed(0)}`) : '';
+    catRows += `<div class="cat-row">
+      <span class="cat-name${c.fixed?' fixed':''}">${c.name}</span>
+      <span class="cat-actual">${sym}${actual.toFixed(0)}</span>
+      <input class="cat-budget-input" type="number" value="${budget}" onchange="updateBudget('${w.id}','${c.id}',this.value)" title="תקציב">
+      <div class="cat-bar-wrap"><div class="cat-bar ${barClass}" style="width:${pct}%"></div></div>
+      <span class="cat-diff ${diff>=0?'pos':'neg'}">${diffText}</span>
+    </div>`;
   });
 
-  const phNote = w.placeholder ? `<div class="placeholder-note" style="padding:12px 20px">⚠ נתוני דור — ממתין לפירוט אשראי</div>` : '';
-
+  const el = document.createElement('div');
+  el.className = 'wallet'; el.id = 'wallet-'+w.id;
   el.innerHTML = `
-    <div class="wallet-header">
-      <div>
+    <div class="wallet-header" onclick="toggleWalletBody('${w.id}')">
+      <div class="wallet-header-left">
         <span class="wallet-name">${w.name}</span>
-        <span class="tag ${w.tag}" style="margin-right:8px">${w.currency}</span>
-        ${w.placeholder ? '<span style="font-size:11px;color:var(--orange);margin-right:6px">PLACEHOLDER</span>' : ''}
+        <span class="wallet-badge ${w.badge}">${w.badgeLabel}</span>
+        ${w.placeholder?'<span class="wallet-badge badge-placeholder">PLACEHOLDER</span>':''}
       </div>
-      <span class="wallet-total">ביצוע: <strong>${sym}${walletTotal.toFixed(0)}</strong> / תקציב: ${sym}${walletBudget.toFixed(0)}</span>
-    </div>
-    <div class="categories">
-      <div class="cat-header">
-        <span>קטגוריה</span>
-        <span>ביצוע</span>
-        <span>תקציב</span>
-        <span></span>
-        <span>הפרש</span>
-      </div>
-      ${catRows}
-    </div>
-    ${phNote}
-    <div class="wallet-actions">
-      <button class="btn btn-ghost" onclick="toggleManual('${w.id}')">+ הוספה ידנית</button>
-      <button class="btn btn-ghost" onclick="togglePdf('${w.id}')">📄 העלאת PDF</button>
-      <button class="btn btn-ghost" onclick="toggleRules('${w.id}')">⚙ חוקי סיווג</button>
-    </div>
-    <div class="manual-panel" id="manual-${w.id}">
-      <h4>הוספת הוצאה ידנית (העברה בנקאית / מזומן)</h4>
-      <div class="manual-form">
-        <div class="form-group">
-          <label>תיאור</label>
-          <input type="text" id="m-desc-${w.id}" placeholder="תיאור ההוצאה" style="width:160px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="wallet-totals">
+          <div class="wallet-total-main">${sym}${walletTotal.toFixed(0)}</div>
+          <div class="wallet-total-sub">מתוך ${sym}${walletBudget.toFixed(0)}</div>
         </div>
-        <div class="form-group">
-          <label>סכום (${w.currency})</label>
-          <input type="number" id="m-amount-${w.id}" placeholder="0" style="width:90px">
-        </div>
-        <div class="form-group">
-          <label>קטגוריה</label>
-          <select id="m-cat-${w.id}">
-            ${w.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>תאריך</label>
-          <input type="date" id="m-date-${w.id}" value="${new Date().toISOString().split('T')[0]}" style="width:130px">
-        </div>
-        <button class="btn btn-green" onclick="addManualEntry('${w.id}')">הוספה</button>
-      </div>
-      <div class="manual-list" id="manual-list-${w.id}">
-        ${renderManualList(w, manuals)}
+        <span class="wallet-chevron" id="chev-${w.id}">▼</span>
       </div>
     </div>
-    <div class="pdf-panel" id="pdf-${w.id}">
-      <h4>העלאת פירוט PDF (${w.currency === 'SOL' ? 'Interbank' : 'בנק יהב / ישראכרט / לאומי'})</h4>
-      <div class="pdf-drop" id="pdf-drop-${w.id}"
-        onclick="document.getElementById('pdf-file-${w.id}').click()"
-        ondragover="event.preventDefault();this.classList.add('drag')"
-        ondragleave="this.classList.remove('drag')"
-        ondrop="handlePdfDrop(event,'${w.id}')">
-        לחץ או גרור קובץ PDF לכאן
-        <br><span style="font-size:11px;opacity:0.6">הטקסט יופק אוטומטית ויסווג לקטגוריות</span>
-      </div>
-      <input type="file" id="pdf-file-${w.id}" accept=".pdf" style="display:none"
-        onchange="handlePdfFile(event,'${w.id}')">
-      <div class="pdf-transactions" id="pdf-txns-${w.id}"></div>
-      <div id="pdf-apply-wrap-${w.id}"></div>
-    </div>
-    <div class="rules-panel" id="rules-${w.id}">
-      <h4>חוקי סיווג אוטומטי — ${w.name}</h4>
-      <div id="rules-list-${w.id}">${renderRulesList(w.id)}</div>
-      <div style="display:flex;gap:8px;margin-top:12px;align-items:flex-end">
-        <div class="form-group">
-          <label>מילת מפתח</label>
-          <input type="text" id="rule-kw-${w.id}" placeholder="למשל: rappi" style="width:130px">
+    <div id="wallet-body-${w.id}">
+      <div class="categories">
+        <div class="cat-header">
+          <span>קטגוריה</span><span>ביצוע</span><span>תקציב</span><span></span><span>הפרש</span>
         </div>
-        <div class="form-group">
-          <label>קטגוריה</label>
-          <select id="rule-cat-${w.id}">
-            ${w.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
-          </select>
-        </div>
-        <button class="btn btn-ghost" onclick="addRule('${w.id}')">+ הוסף</button>
+        ${catRows}
       </div>
-    </div>
-  `;
-
+      ${w.placeholder?`<div class="placeholder-note">⚠ ממתין לפירוט אשראי של דור</div>`:''}
+      <div class="wallet-actions">
+        <button class="btn btn-ghost" onclick="togglePanel('manual-${w.id}')">+ הוספה ידנית</button>
+        <button class="btn btn-ghost" onclick="togglePanel('pdf-${w.id}')">📄 העלאת PDF</button>
+        <button class="btn btn-ghost" onclick="togglePanel('rules-${w.id}')">⚙ חוקי סיווג</button>
+      </div>
+      <div class="panel" id="manual-${w.id}">
+        <h4>הוספת הוצאה ידנית (העברה בנקאית / מזומן)</h4>
+        <div class="manual-form">
+          <div class="form-group"><label>תיאור</label><input type="text" id="m-desc-${w.id}" placeholder="תיאור" style="width:150px"></div>
+          <div class="form-group"><label>סכום</label><input type="number" id="m-amount-${w.id}" placeholder="0" style="width:90px"></div>
+          <div class="form-group"><label>קטגוריה</label>
+            <select id="m-cat-${w.id}">${w.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+          </div>
+          <div class="form-group"><label>תאריך</label>
+            <input type="date" id="m-date-${w.id}" value="${new Date().toISOString().split('T')[0]}" style="width:140px">
+          </div>
+          <button class="btn btn-green" onclick="addManualEntry('${w.id}')">הוספה</button>
+        </div>
+        <div class="manual-list" id="manual-list-${w.id}">${renderManualList(w, manuals)}</div>
+      </div>
+      <div class="panel" id="pdf-${w.id}">
+        <h4>העלאת פירוט PDF</h4>
+        <div class="pdf-drop" id="pdf-drop-${w.id}"
+          onclick="document.getElementById('pdf-file-${w.id}').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handlePdfDrop(event,'${w.id}')">
+          לחץ או גרור קובץ PDF לכאן
+          <br><span style="font-size:11px;opacity:0.6">הטקסט יופק אוטומטית ויסווג</span>
+        </div>
+        <input type="file" id="pdf-file-${w.id}" accept=".pdf" style="display:none" onchange="handlePdfFile(event,'${w.id}')">
+        <div class="pdf-transactions" id="pdf-txns-${w.id}"></div>
+        <div id="pdf-apply-wrap-${w.id}"></div>
+      </div>
+      <div class="panel" id="rules-${w.id}">
+        <h4>חוקי סיווג — ${w.name}</h4>
+        <div id="rules-list-${w.id}">${renderRulesList(w.id)}</div>
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:flex-end">
+          <div class="form-group"><label>מילת מפתח</label><input type="text" id="rule-kw-${w.id}" placeholder="rappi" style="width:130px"></div>
+          <div class="form-group"><label>קטגוריה</label>
+            <select id="rule-cat-${w.id}">${w.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+          </div>
+          <button class="btn btn-ghost" onclick="addRule('${w.id}')">+ הוסף</button>
+        </div>
+      </div>
+    </div>`;
   container.appendChild(el);
 }
 
@@ -674,7 +744,7 @@ function renderManualList(w, manuals) {
       <span class="manual-item-desc">${m.desc}</span>
       <span class="manual-item-cat">${w.categories.find(c=>c.id===m.cat)?.name||m.cat}</span>
       <span class="manual-item-amount">${w.symbol}${parseFloat(m.amount).toFixed(0)}</span>
-      <span class="manual-item-date text-small">${m.date||''}</span>
+      <span class="manual-item-date">${m.date||''}</span>
       <button class="manual-item-del" onclick="deleteManual('${w.id}',${i})">✕</button>
     </div>`).join('');
 }
@@ -682,26 +752,26 @@ function renderManualList(w, manuals) {
 function renderRulesList(walletId) {
   const rules = state.rules[walletId] || {};
   const entries = Object.entries(rules);
-  if (!entries.length) return '<div class="text-small">אין חוקים מוגדרים</div>';
-  return entries.map(([kw, catId]) => {
+  if (!entries.length) return '<div class="text-small">אין חוקים</div>';
+  return entries.map(([kw,catId]) => {
     const w = WALLETS_DEF.find(x=>x.id===walletId);
-    const catName = w?.categories.find(c=>c.id===catId)?.name || catId;
-    return `<div class="rule-row">
-      <span class="rule-keyword">${kw}</span>
-      <span>→</span>
-      <span class="rule-cat">${catName}</span>
-      <button class="rule-del" onclick="deleteRule('${walletId}','${kw}')">✕</button>
-    </div>`;
+    const catName = w?.categories.find(c=>c.id===catId)?.name||catId;
+    return `<div class="rule-row"><span class="rule-keyword">${kw}</span><span class="rule-arrow">→</span><span class="rule-cat">${catName}</span><button class="rule-del" onclick="deleteRule('${walletId}','${kw}')">✕</button></div>`;
   }).join('');
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 //  ACTIONS
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 
-function changeMonth(dir) {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
-  render();
+function changeMonth(dir) { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+dir, 1); render(); }
+
+function toggleWalletBody(wid) {
+  const body = document.getElementById('wallet-body-'+wid);
+  const chev = document.getElementById('chev-'+wid);
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  chev.textContent = hidden ? '▼' : '▶';
 }
 
 function toggleIncomeEditor() {
@@ -709,290 +779,249 @@ function toggleIncomeEditor() {
   el.classList.toggle('open');
   if (el.classList.contains('open')) renderIncomeEditor();
 }
-
 function renderIncomeEditor() {
   const mk = getMonthKey(currentDate);
   const md = getMonthData(mk);
-  const rows = document.getElementById('incomeRows');
-  if (!md.income.length) {
-    md.income = [
-      { label: 'משכורת דור', amount: '' },
-      { label: 'קצבת ילדים', amount: '' },
-      { label: 'חד-פעמי', amount: '' },
-    ];
-  }
-  rows.innerHTML = md.income.map((r,i) => `
+  if (!md.incomeILS.length) md.incomeILS = [{label:'משכורת דור',amount:''},{label:'קצבת ילדים',amount:''}];
+  if (!md.incomeSOL.length) md.incomeSOL = [{label:'הכנסה פרו',amount:''}];
+  renderIncRows('ILS'); renderIncRows('SOL');
+}
+function renderIncRows(cur) {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  const arr = cur==='ILS' ? md.incomeILS : md.incomeSOL;
+  const sym = cur==='ILS' ? '₪' : 'S/';
+  document.getElementById('incomeRows'+cur).innerHTML = arr.map((r,i)=>`
     <div class="income-row">
-      <input type="text" value="${r.label}" onchange="updateIncomeLabel(${i},this.value)" style="width:160px">
-      <input type="number" value="${r.amount}" placeholder="0" onchange="updateIncomeAmount(${i},this.value)" style="width:100px">
-      <span style="font-size:12px;color:var(--text3)">₪</span>
-      <button class="manual-item-del" onclick="removeIncomeRow(${i})">✕</button>
+      <input type="text" value="${r.label}" onchange="updateIncLabel('${cur}',${i},this.value)" style="width:150px">
+      <input type="number" value="${r.amount}" placeholder="0" onchange="updateIncAmount('${cur}',${i},this.value)" style="width:110px">
+      <span style="font-size:12px;color:var(--text3)">${sym}</span>
+      <button class="manual-item-del" onclick="removeIncRow('${cur}',${i})">✕</button>
     </div>`).join('');
 }
+function updateIncLabel(cur,i,v){ const mk=getMonthKey(currentDate); const md=getMonthData(mk); (cur==='ILS'?md.incomeILS:md.incomeSOL)[i].label=v; }
+function updateIncAmount(cur,i,v){ const mk=getMonthKey(currentDate); const md=getMonthData(mk); (cur==='ILS'?md.incomeILS:md.incomeSOL)[i].amount=v; }
+function addIncomeRow(cur){ const mk=getMonthKey(currentDate); const md=getMonthData(mk); (cur==='ILS'?md.incomeILS:md.incomeSOL).push({label:'',amount:''}); renderIncRows(cur); }
+function removeIncRow(cur,i){ const mk=getMonthKey(currentDate); const md=getMonthData(mk); (cur==='ILS'?md.incomeILS:md.incomeSOL).splice(i,1); renderIncRows(cur); }
+function saveIncome(){ saveState(); document.getElementById('incomeEditor').classList.remove('open'); }
 
-function updateIncomeLabel(i, val) {
-  const mk = getMonthKey(currentDate);
-  getMonthData(mk).income[i].label = val;
-}
-function updateIncomeAmount(i, val) {
-  const mk = getMonthKey(currentDate);
-  getMonthData(mk).income[i].amount = val;
-}
-function addIncomeRow() {
-  const mk = getMonthKey(currentDate);
-  const md = getMonthData(mk);
-  md.income.push({ label: '', amount: '' });
-  renderIncomeEditor();
-}
-function removeIncomeRow(i) {
-  const mk = getMonthKey(currentDate);
-  const md = getMonthData(mk);
-  md.income.splice(i, 1);
-  renderIncomeEditor();
-}
-function saveIncome() {
-  saveState();
-  document.getElementById('incomeEditor').classList.remove('open');
-}
+function updateBudget(wid,cid,v){ if(!state.budgets[wid])state.budgets[wid]={}; state.budgets[wid][cid]=parseFloat(v)||0; saveState(); }
 
-function updateBudget(walletId, catId, value) {
-  if (!state.budgets[walletId]) state.budgets[walletId] = {};
-  state.budgets[walletId][catId] = parseFloat(value)||0;
+function togglePanel(id){ document.getElementById(id)?.classList.toggle('open'); }
+
+function addManualEntry(wid) {
+  const desc = document.getElementById('m-desc-'+wid).value.trim();
+  const amount = document.getElementById('m-amount-'+wid).value;
+  const cat = document.getElementById('m-cat-'+wid).value;
+  const date = document.getElementById('m-date-'+wid).value;
+  if (!desc||!amount) return alert('נא למלא תיאור וסכום');
+  const mk = getMonthKey(currentDate); const md = getMonthData(mk);
+  if (!md.manualEntries[wid]) md.manualEntries[wid] = [];
+  md.manualEntries[wid].push({desc, amount:parseFloat(amount), cat, date});
+  document.getElementById('m-desc-'+wid).value = '';
+  document.getElementById('m-amount-'+wid).value = '';
   saveState();
 }
+function deleteManual(wid,idx){ const mk=getMonthKey(currentDate); getMonthData(mk).manualEntries[wid].splice(idx,1); saveState(); }
+function addRule(wid){ const kw=document.getElementById('rule-kw-'+wid).value.trim(); const cat=document.getElementById('rule-cat-'+wid).value; if(!kw)return; learnRule(wid,kw,cat); document.getElementById('rule-kw-'+wid).value=''; }
+function deleteRule(wid,kw){ delete state.rules[wid][kw]; saveState(); }
 
-function toggleManual(walletId) {
-  const el = document.getElementById('manual-' + walletId);
-  el.classList.toggle('open');
-}
-function togglePdf(walletId) {
-  const el = document.getElementById('pdf-' + walletId);
-  el.classList.toggle('open');
-}
-function toggleRules(walletId) {
-  const el = document.getElementById('rules-' + walletId);
-  el.classList.toggle('open');
-}
-
-function addManualEntry(walletId) {
-  const desc = document.getElementById('m-desc-'+walletId).value.trim();
-  const amount = document.getElementById('m-amount-'+walletId).value;
-  const cat = document.getElementById('m-cat-'+walletId).value;
-  const date = document.getElementById('m-date-'+walletId).value;
-  if (!desc || !amount) return alert('נא למלא תיאור וסכום');
-  const mk = getMonthKey(currentDate);
-  const md = getMonthData(mk);
-  if (!md.manualEntries[walletId]) md.manualEntries[walletId] = [];
-  md.manualEntries[walletId].push({ desc, amount: parseFloat(amount), cat, date });
-  document.getElementById('m-desc-'+walletId).value = '';
-  document.getElementById('m-amount-'+walletId).value = '';
-  saveState();
-}
-
-function deleteManual(walletId, idx) {
-  const mk = getMonthKey(currentDate);
-  const md = getMonthData(mk);
-  md.manualEntries[walletId].splice(idx, 1);
-  saveState();
-}
-
-function addRule(walletId) {
-  const kw = document.getElementById('rule-kw-'+walletId).value.trim();
-  const cat = document.getElementById('rule-cat-'+walletId).value;
-  if (!kw) return;
-  learnRule(walletId, kw, cat);
-  document.getElementById('rule-kw-'+walletId).value = '';
-}
-
-function deleteRule(walletId, keyword) {
-  delete state.rules[walletId][keyword];
-  saveState();
-}
-
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 //  PDF PARSING
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════
 
-async function handlePdfDrop(event, walletId) {
-  event.preventDefault();
-  document.getElementById('pdf-drop-'+walletId).classList.remove('drag');
-  const file = event.dataTransfer.files[0];
-  if (file && file.type === 'application/pdf') await parsePdf(file, walletId);
-}
-
-async function handlePdfFile(event, walletId) {
-  const file = event.target.files[0];
-  if (file) await parsePdf(file, walletId);
-}
-
-async function parsePdf(file, walletId) {
-  const drop = document.getElementById('pdf-drop-'+walletId);
-  drop.textContent = 'קורא את הקובץ...';
-
-  try {
-    // Load PDF.js from CDN
-    if (!window.pdfjsLib) {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      fullText += content.items.map(item => item.str).join(' ') + '\n';
-    }
-
-    const txns = parseTransactions(fullText, walletId);
-    renderPdfTransactions(txns, walletId);
-    drop.textContent = `נמצאו ${txns.length} עסקאות — אשרי קטגוריות ולחצי "החל"`;
-  } catch(e) {
-    drop.textContent = 'שגיאה בקריאת הקובץ. נסי קובץ אחר.';
-    console.error(e);
-  }
-}
-
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = src; s.onload = resolve; s.onerror = reject;
-    document.head.appendChild(s);
-  });
-}
-
-function parseTransactions(text, walletId) {
-  const txns = [];
-  const lines = text.split('\n');
-
-  if (walletId === 'peru') {
-    // Interbank format: date, merchant, amount
-    const re = /(\d{2}[-\/]\w+[-\/]\d{2,4}|\d{1,2}[-\/]\w{2,3})\s+(.+?)\s+([\d,]+\.?\d{0,2})\s*0\.00/gi;
-    const re2 = /(\d{2}[-\/]\w+)\s+(.{4,40}?)\s+([\d,]+\.\d{2})\s+0\.00/gi;
-    let m;
-    while ((m = re2.exec(text)) !== null) {
-      const desc = m[2].trim();
-      const amount = parseFloat(m[3].replace(',',''));
-      if (amount > 0 && amount < 50000) {
-        txns.push({ date: m[1], desc, amount, cat: classify(walletId, desc), skip: false });
-      }
-    }
-    // Fallback: line-by-line heuristic
-    if (!txns.length) {
-      for (const line of lines) {
-        const m = line.match(/(\d{2}[-\/]\w{2,3})\s+(.{4,40}?)\s+([\d,]+\.\d{2})\s+0\.00/);
-        if (m) {
-          const amount = parseFloat(m[3].replace(',',''));
-          if (amount > 0) txns.push({ date: m[1], desc: m[2].trim(), amount, cat: classify(walletId, m[2]), skip: false });
-        }
-      }
-    }
-  } else {
-    // Israeli bank format: date, description, amount in ₪
-    for (const line of lines) {
-      const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+(.{3,40}?)\s+(\d+\.?\d{0,2})\s/);
-      if (m) {
-        const amount = parseFloat(m[3]);
-        if (amount > 0 && amount < 100000) {
-          txns.push({ date: m[1], desc: m[2].trim(), amount, cat: classify(walletId, m[2]), skip: false });
-        }
-      }
-    }
-    // Second pass for Hebrew bank statements
-    if (!txns.length) {
-      for (const line of lines) {
-        const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+([^\d]+?)\s+([\d,]+\.?\d{0,2})/);
-        if (m) {
-          const desc = m[2].trim();
-          const amount = parseFloat(m[3].replace(',',''));
-          if (amount > 0 && desc.length > 2) {
-            txns.push({ date: m[1], desc, amount, cat: classify(walletId, desc), skip: false });
-          }
-        }
-      }
-    }
-  }
-
-  return txns.slice(0, 200); // cap
-}
-
-// Store parsed txns temporarily
 const pendingTxns = {};
 
-function renderPdfTransactions(txns, walletId) {
-  pendingTxns[walletId] = txns;
-  const w = WALLETS_DEF.find(x=>x.id===walletId);
-  const container = document.getElementById('pdf-txns-'+walletId);
-  const applyWrap = document.getElementById('pdf-apply-wrap-'+walletId);
+async function handlePdfDrop(e,wid){ e.preventDefault(); document.getElementById('pdf-drop-'+wid).classList.remove('drag'); const f=e.dataTransfer.files[0]; if(f&&f.type==='application/pdf') await parsePdf(f,wid); }
+async function handlePdfFile(e,wid){ const f=e.target.files[0]; if(f) await parsePdf(f,wid); }
 
-  if (!txns.length) {
-    container.innerHTML = '<div class="text-small" style="padding:8px 0">לא זוהו עסקאות. ייתכן שפורמט ה-PDF שונה.</div>';
-    applyWrap.innerHTML = '';
-    return;
+async function parsePdf(file, wid) {
+  const drop = document.getElementById('pdf-drop-'+wid);
+  drop.textContent = 'קורא...';
+  try {
+    if (!window.pdfjsLib) {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    const ab = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:ab}).promise;
+    let text = '';
+    for(let i=1;i<=pdf.numPages;i++){ const pg=await pdf.getPage(i); const ct=await pg.getTextContent(); text+=ct.items.map(x=>x.str).join(' ')+'\n'; }
+    const txns = parseTransactions(text, wid);
+    renderPdfTxns(txns, wid);
+    drop.textContent = `נמצאו ${txns.length} עסקאות`;
+  } catch(e) { drop.textContent='שגיאה בקריאה'; console.error(e); }
+}
+
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+
+function parseTransactions(text, wid) {
+  const txns=[], lines=text.split('\n');
+  if (wid==='peru') {
+    const re=/(\\d{2}[-\\/]\\w+)\\s+(.{4,40}?)\\s+([\\d,]+\\.\\d{2})\\s+0\\.00/gi;
+    let m; while((m=re.exec(text))!==null){ const a=parseFloat(m[3].replace(',','')); if(a>0&&a<50000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }
+    if(!txns.length){ for(const l of lines){ const m=l.match(/(\\d{2}[-\\/]\\w{2,3})\\s+(.{4,40}?)\\s+([\\d,]+\\.\\d{2})\\s+0\\.00/); if(m){ const a=parseFloat(m[3].replace(',','')); if(a>0) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }}}
+  } else {
+    for(const l of lines){ const m=l.match(/(\\d{2}\\/\\d{2}\\/\\d{4})\\s+(.{3,40}?)\\s+(\\d+\\.?\\d{0,2})\\s/); if(m){ const a=parseFloat(m[3]); if(a>0&&a<100000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }}
+    if(!txns.length){ for(const l of lines){ const m=l.match(/(\\d{2}\\/\\d{2}\\/\\d{4})\\s+([^\\d]+?)\\s+([\\d,]+\\.?\\d{0,2})/); if(m){ const d=m[2].trim(),a=parseFloat(m[3].replace(',','')); if(a>0&&d.length>2) txns.push({date:m[1],desc:d,amount:a,cat:classify(wid,d),skip:false}); }}}
   }
+  return txns.slice(0,200);
+}
 
-  container.innerHTML = txns.map((t,i) => `
-    <div class="pdf-tx ${t.skip?'skipped':''}" id="pdf-tx-${walletId}-${i}">
+function renderPdfTxns(txns, wid) {
+  pendingTxns[wid] = txns;
+  const w = WALLETS_DEF.find(x=>x.id===wid);
+  const c = document.getElementById('pdf-txns-'+wid);
+  const aw = document.getElementById('pdf-apply-wrap-'+wid);
+  if (!txns.length) { c.innerHTML='<div class="text-small" style="padding:8px 0">לא זוהו עסקאות</div>'; aw.innerHTML=''; return; }
+  c.innerHTML = txns.map((t,i)=>`
+    <div class="pdf-tx ${t.skip?'skipped':''}" id="pdf-tx-${wid}-${i}">
       <span class="pdf-tx-date">${t.date}</span>
       <span class="pdf-tx-desc">${t.desc}</span>
-      <span class="pdf-tx-cat">
-        <select onchange="updateTxCat('${walletId}',${i},this.value)">
-          ${w.categories.map(c=>`<option value="${c.id}" ${c.id===t.cat?'selected':''}>${c.name}</option>`).join('')}
-        </select>
-      </span>
+      <span class="pdf-tx-cat"><select onchange="updateTxCat('${wid}',${i},this.value)">${w.categories.map(cc=>`<option value="${cc.id}" ${cc.id===t.cat?'selected':''}>${cc.name}</option>`).join('')}</select></span>
       <span class="pdf-tx-amount">${w.symbol}${t.amount.toFixed(0)}</span>
-      <span class="pdf-tx-skip" onclick="toggleSkipTx('${walletId}',${i})">${t.skip?'↩ שחזר':'✕ דלג'}</span>
+      <span class="pdf-tx-skip" onclick="toggleSkipTx('${wid}',${i})">${t.skip?'↩':'✕'}</span>
     </div>`).join('');
+  aw.innerHTML = `<div style="display:flex;gap:8px;align-items:center;margin-top:12px"><button class="btn btn-primary" onclick="applyPdfTxns('${wid}')">החל ${txns.filter(t=>!t.skip).length} עסקאות</button><span class="text-small">הסיווג יישמר</span></div>`;
+}
 
-  applyWrap.innerHTML = `
-    <div class="pdf-apply-btn" style="display:flex;gap:8px;align-items:center">
-      <button class="btn btn-primary" onclick="applyPdfTxns('${walletId}')">החל הכל (${txns.filter(t=>!t.skip).length} עסקאות)</button>
-      <span class="text-small">הסיווג יישמר לפעם הבאה</span>
+function updateTxCat(wid,i,cat){ if(pendingTxns[wid]){ pendingTxns[wid][i].cat=cat; const kw=pendingTxns[wid][i].desc.toLowerCase().trim().split(' ').slice(0,3).join(' '); learnRule(wid,kw,cat); } }
+function toggleSkipTx(wid,i){ if(pendingTxns[wid]){ pendingTxns[wid][i].skip=!pendingTxns[wid][i].skip; renderPdfTxns(pendingTxns[wid],wid); } }
+function applyPdfTxns(wid) {
+  const txns=pendingTxns[wid]||[]; const mk=getMonthKey(currentDate); const md=getMonthData(mk);
+  const w=WALLETS_DEF.find(x=>x.id===wid);
+  if(!md.actuals[wid]) md.actuals[wid]={};
+  w.categories.forEach(c=>{md.actuals[wid][c.id]=0;});
+  txns.filter(t=>!t.skip).forEach(t=>{md.actuals[wid][t.cat]=(md.actuals[wid][t.cat]||0)+t.amount;});
+  saveState(); document.getElementById('pdf-'+wid).classList.remove('open');
+  alert(`הוחלו ${txns.filter(t=>!t.skip).length} עסקאות`);
+}
+
+// ═══════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════
+
+const PIE_COLORS = ['#5b4fcf','#b5935a','#2d8a55','#c0392b','#2563a8','#c87020','#8e44ad','#16a085','#d35400','#27ae60','#2980b9','#e74c3c'];
+
+function openChart(wid) {
+  const w = WALLETS_DEF.find(x=>x.id===wid);
+  const mk = getMonthKey(currentDate);
+  const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+  document.getElementById('chartTitle').textContent = `ניתוח הוצאות — ${w.name}`;
+  document.getElementById('chartOverlay').classList.add('open');
+
+  // Current month data
+  const md = getMonthData(mk);
+  const actuals = md.actuals[wid] || {};
+  const manuals = md.manualEntries[wid] || [];
+
+  const catData = w.categories.map(c => {
+    const val = (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
+    return { name: c.name, val, budget: state.budgets[wid]?.[c.id]||0 };
+  }).filter(d => d.val > 0);
+
+  const total = catData.reduce((s,d)=>s+d.val,0);
+
+  // Last 6 months trend
+  const hist = [];
+  for (let i=5;i>=0;i--) {
+    const d2 = new Date(currentDate.getFullYear(), currentDate.getMonth()-i, 1);
+    const m2key = getMonthKey(d2);
+    const m2d = getMonthData(m2key);
+    const a2 = m2d.actuals[wid]||{};
+    const mn2 = m2d.manualEntries[wid]||[];
+    let t2=0;
+    w.categories.forEach(c=>{t2+=(a2[c.id]||0)+mn2.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);});
+    hist.push({ label: MONTHS[d2.getMonth()].substring(0,3), mk: m2key, total: t2 });
+  }
+  const maxHist = Math.max(...hist.map(h=>h.total), 1);
+
+  // Per-category trend (top 4)
+  const topCats = [...catData].sort((a,b)=>b.val-a.val).slice(0,4);
+
+  // Build HTML
+  let pieHtml = buildPie(catData, total, w.symbol);
+  let barHtml = buildBar(hist, maxHist, wid);
+  let trendHtml = buildTrend(topCats, w, wid);
+
+  document.getElementById('chartContent').innerHTML = `
+    <div class="charts-grid">
+      <div class="chart-card"><h3>התפלגות החודש — ${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}</h3>${pieHtml}</div>
+      <div class="chart-card"><h3>השוואה לחודשים קודמים</h3>${barHtml}</div>
+      <div class="chart-card full"><h3>מגמה לפי קטגוריה (4 גדולות)</h3>${trendHtml}</div>
     </div>`;
 }
 
-function updateTxCat(walletId, idx, catId) {
-  if (pendingTxns[walletId]) {
-    const t = pendingTxns[walletId][idx];
-    t.cat = catId;
-    // Learn rule
-    const keyword = t.desc.toLowerCase().trim().split(' ').slice(0,3).join(' ');
-    learnRule(walletId, keyword, catId);
-  }
-}
-
-function toggleSkipTx(walletId, idx) {
-  if (pendingTxns[walletId]) {
-    pendingTxns[walletId][idx].skip = !pendingTxns[walletId][idx].skip;
-    renderPdfTransactions(pendingTxns[walletId], walletId);
-  }
-}
-
-function applyPdfTxns(walletId) {
-  const txns = pendingTxns[walletId] || [];
-  const mk = getMonthKey(currentDate);
-  const md = getMonthData(mk);
-  if (!md.actuals[walletId]) md.actuals[walletId] = {};
-
-  // Clear existing PDF actuals and rebuild
-  const w = WALLETS_DEF.find(x=>x.id===walletId);
-  w.categories.forEach(c => { md.actuals[walletId][c.id] = 0; });
-
-  txns.filter(t=>!t.skip).forEach(t => {
-    md.actuals[walletId][t.cat] = (md.actuals[walletId][t.cat]||0) + t.amount;
+function buildPie(catData, total, sym) {
+  if (!total) return '<div class="text-small">אין נתונים לחודש זה</div>';
+  let paths = '', cx=100, cy=100, r=80, startAngle=-Math.PI/2;
+  catData.forEach((d,i) => {
+    const slice = (d.val/total) * 2 * Math.PI;
+    const endAngle = startAngle + slice;
+    const x1=cx+r*Math.cos(startAngle), y1=cy+r*Math.sin(startAngle);
+    const x2=cx+r*Math.cos(endAngle), y2=cy+r*Math.sin(endAngle);
+    const large = slice>Math.PI?1:0;
+    const color = PIE_COLORS[i%PIE_COLORS.length];
+    paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z" fill="${color}" stroke="white" stroke-width="2"/>`;
+    startAngle = endAngle;
   });
-
-  saveState();
-  document.getElementById('pdf-'+walletId).classList.remove('open');
-  alert(`הוחלו ${txns.filter(t=>!t.skip).length} עסקאות בהצלחה`);
+  const legend = catData.map((d,i) => `
+    <div class="pie-legend-item">
+      <div class="pie-dot" style="background:${PIE_COLORS[i%PIE_COLORS.length]}"></div>
+      <span class="pie-legend-name">${d.name}</span>
+      <span class="pie-legend-val">${sym}${d.val.toFixed(0)}</span>
+      <span class="pie-legend-pct">${((d.val/total)*100).toFixed(0)}%</span>
+    </div>`).join('');
+  return `<div class="pie-wrap"><svg viewBox="0 0 200 200" width="200" height="200">${paths}</svg></div><div class="pie-legend">${legend}</div>`;
 }
 
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
+function buildBar(hist, maxHist, wid) {
+  const w = WALLETS_DEF.find(x=>x.id===wid);
+  const budget = getWalletBudget(w);
+  const bars = hist.map((h,i) => {
+    const pct = maxHist>0?(h.total/maxHist*100):0;
+    const isOver = budget>0&&h.total>budget;
+    const color = i===hist.length-1?'#5b4fcf':(isOver?'#c0392b':'#2d8a55');
+    return `<div class="bar-row">
+      <div class="bar-label">${h.label}</div>
+      <div class="bar-outer">
+        <div class="bar-inner" style="width:${pct}%;background:${color}">
+          ${h.total>0?`<span class="bar-val">${w.symbol}${h.total.toFixed(0)}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="bar-chart-wrap">${bars}${budget>0?`<div class="text-small" style="margin-top:8px">קו תקציב: ${w.symbol}${budget.toFixed(0)}</div>`:''}</div>`;
+}
 
+function buildTrend(topCats, w, wid) {
+  const MONTHS6 = [];
+  for(let i=5;i>=0;i--){ const d2=new Date(currentDate.getFullYear(),currentDate.getMonth()-i,1); MONTHS6.push({mk:getMonthKey(d2),label:['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'][d2.getMonth()]}); }
+  const headers = `<tr><th>קטגוריה</th>${MONTHS6.map(m=>`<th>${m.label}</th>`).join('')}</tr>`;
+  const rows = topCats.map(cat => {
+    const cells = MONTHS6.map((m,i) => {
+      const md2 = getMonthData(m.mk);
+      const a = md2.actuals[wid]||{};
+      const mn = md2.manualEntries[wid]||[];
+      const catDef = w.categories.find(c=>c.name===cat.name);
+      const val = catDef ? ((a[catDef.id]||0)+mn.filter(x=>x.cat===catDef.id).reduce((s,x)=>s+(parseFloat(x.amount)||0),0)) : 0;
+      const prev = i>0 ? (() => { const md3=getMonthData(MONTHS6[i-1].mk); const a3=md3.actuals[wid]||{}; const mn3=md3.manualEntries[wid]||[]; return catDef?((a3[catDef.id]||0)+mn3.filter(x=>x.cat===catDef.id).reduce((s,x)=>s+(parseFloat(x.amount)||0),0)):0; })() : null;
+      const trend = prev!==null&&prev>0 ? (val>prev?'trend-up':'trend-down') : '';
+      return `<td class="trend-val ${trend}">${val>0?w.symbol+val.toFixed(0):'—'}</td>`;
+    }).join('');
+    return `<tr><td>${cat.name}</td>${cells}</tr>`;
+  }).join('');
+  return `<div style="overflow-x:auto"><table class="trend-table">${headers}${rows}</table></div>`;
+}
+
+function closeChart() { document.getElementById('chartOverlay').classList.remove('open'); }
+
+// ═══════════════════════════════════
+//  INIT
+// ═══════════════════════════════════
+
+seedHistoricalData();
 render();
 </script>
 </body>
