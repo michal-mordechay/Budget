@@ -65,9 +65,22 @@
   .month-label { font-size: 15px; font-weight: 600; min-width: 130px; text-align: center; color: var(--text); }
 
   /* ── Summary Bar ── */
-  .summary-bar {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px; margin-bottom: 28px;
+  .summary-columns {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; margin-bottom: 28px;
+  }
+  .summary-col-label {
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  .summary-col-cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  @media (max-width: 700px) {
+    .summary-columns { grid-template-columns: 1fr; }
   }
   .summary-card {
     background: var(--surface); border: 1px solid var(--border);
@@ -81,6 +94,10 @@
   .summary-card.michal-card { border-top: 3px solid var(--ils); }
   .summary-card.dor-card { border-top: 3px solid var(--dor); }
   .summary-card.balance { border-top: 3px solid var(--accent); }
+  .summary-card.balance-sol { border-top: 3px solid var(--sol); }
+  .summary-card.balance-ils { border-top: 3px solid var(--ils); }
+  .summary-card.income-sol { border-top: 3px solid var(--green); }
+  .summary-card.income-ils { border-top: 3px solid var(--green); }
   .sc-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 500; }
   .sc-value { font-size: 24px; font-weight: 600; }
   .sc-value.green { color: var(--green); }
@@ -347,35 +364,60 @@
   </div>
 
   <!-- Summary Bar -->
-  <div class="summary-bar">
-    <div class="summary-card income">
-      <div class="sc-label">הכנסות</div>
-      <div id="incSumWrap"></div>
-      <button class="sc-edit-btn" onclick="toggleIncomeEditor()">✏ עריכה</button>
+  <div class="summary-columns">
+
+    <!-- פרו -->
+    <div class="summary-col">
+      <div class="summary-col-label">פרו · S/</div>
+      <div class="summary-col-cards">
+        <div class="summary-card income-sol">
+          <div class="sc-label">הכנסות פרו</div>
+          <div class="sc-value sol" id="incomeSOLDisplay">S/—</div>
+          <button class="sc-edit-btn" onclick="toggleIncomeEditor()">✏ עריכה</button>
+        </div>
+        <div class="summary-card peru-card clickable" onclick="openChart('peru')">
+          <div class="sc-label">הוצאות פרו</div>
+          <div class="sc-value sol" id="totalPeru">S/0</div>
+          <div class="sc-sub" id="peruVsBudget"></div>
+          <div class="sc-hint">לחץ לניתוח ↗</div>
+        </div>
+        <div class="summary-card balance-sol">
+          <div class="sc-label">יתרה פרו</div>
+          <div class="sc-value" id="balanceSOL">—</div>
+          <div class="sc-sub" id="balanceSOLSub"></div>
+        </div>
+      </div>
     </div>
-    <div class="summary-card peru-card clickable" onclick="openChart('peru')">
-      <div class="sc-label">הוצאות פרו</div>
-      <div class="sc-value sol" id="totalPeru">S/0</div>
-      <div class="sc-sub" id="peruVsBudget"></div>
-      <div class="sc-hint">לחץ לניתוח ↗</div>
+
+    <!-- ישראל -->
+    <div class="summary-col">
+      <div class="summary-col-label">ישראל · ₪</div>
+      <div class="summary-col-cards">
+        <div class="summary-card income-ils">
+          <div class="sc-label">הכנסות ישראל</div>
+          <div class="sc-value ils" id="incomeILSDisplay">₪—</div>
+          <button class="sc-edit-btn" onclick="toggleIncomeEditor()">✏ עריכה</button>
+        </div>
+        <div class="summary-card michal-card clickable" onclick="openChart('michal')">
+          <div class="sc-label">הוצאות מיכל</div>
+          <div class="sc-value ils" id="totalMichal">₪0</div>
+          <div class="sc-sub" id="michalVsBudget"></div>
+          <div class="sc-hint">לחץ לניתוח ↗</div>
+        </div>
+        <div class="summary-card dor-card clickable" onclick="openChart('dor')">
+          <div class="sc-label">הוצאות דור</div>
+          <div class="sc-value dor" id="totalDor">₪0</div>
+          <div class="sc-sub" id="dorVsBudget"></div>
+          <div class="sc-hint">לחץ לניתוח ↗</div>
+        </div>
+        <div class="summary-card balance-ils">
+          <div class="sc-label">יתרה ישראל</div>
+          <div class="sc-value" id="balanceILS">—</div>
+          <div class="sc-sub" id="balanceILSSub"></div>
+        </div>
+      </div>
     </div>
-    <div class="summary-card michal-card clickable" onclick="openChart('michal')">
-      <div class="sc-label">ישראל — מיכל</div>
-      <div class="sc-value ils" id="totalMichal">₪0</div>
-      <div class="sc-sub" id="michalVsBudget"></div>
-      <div class="sc-hint">לחץ לניתוח ↗</div>
-    </div>
-    <div class="summary-card dor-card clickable" onclick="openChart('dor')">
-      <div class="sc-label">ישראל — דור</div>
-      <div class="sc-value dor" id="totalDor">₪0</div>
-      <div class="sc-sub" id="dorVsBudget"></div>
-      <div class="sc-hint">לחץ לניתוח ↗</div>
-    </div>
-    <div class="summary-card balance">
-      <div class="sc-label">יתרה ₪</div>
-      <div class="sc-value gold" id="balanceVal">—</div>
-      <div class="sc-sub" id="balanceSub"></div>
-    </div>
+
   </div>
 
   <!-- Income Editor -->
@@ -627,11 +669,8 @@ function render() {
 
   const totalILS = (md.incomeILS||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   const totalSOL = (md.incomeSOL||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
-  let incHtml = '';
-  if (totalILS > 0) incHtml += `<div class="sc-value ils">₪${totalILS.toLocaleString('he-IL',{maximumFractionDigits:0})}</div>`;
-  if (totalSOL > 0) incHtml += `<div class="sc-value sol" style="font-size:18px;margin-top:2px">S/${totalSOL.toLocaleString('es-PE',{maximumFractionDigits:0})}</div>`;
-  if (!totalILS && !totalSOL) incHtml = `<div class="sc-value" style="color:var(--text3);font-size:16px">לא הוזן</div>`;
-  document.getElementById('incSumWrap').innerHTML = incHtml;
+  document.getElementById('incomeILSDisplay').textContent = totalILS > 0 ? '₪'+totalILS.toLocaleString('he-IL',{maximumFractionDigits:0}) : '₪—';
+  document.getElementById('incomeSOLDisplay').textContent = totalSOL > 0 ? 'S/'+totalSOL.toLocaleString('es-PE',{maximumFractionDigits:0}) : 'S/—';
 
   const peruW = WALLETS_DEF.find(w=>w.id==='peru');
   const michalW = WALLETS_DEF.find(w=>w.id==='michal');
@@ -649,15 +688,29 @@ function render() {
   document.getElementById('dorVsBudget').textContent = `תקציב: ₪${getWalletBudget(dorW).toLocaleString('he-IL',{maximumFractionDigits:0})}`;
 
   const israelTotal = michalTotal + dorTotal;
+
+  // Balance ILS
   if (totalILS > 0) {
-    const bal = totalILS - israelTotal;
-    document.getElementById('balanceVal').textContent = '₪'+bal.toLocaleString('he-IL',{maximumFractionDigits:0});
-    document.getElementById('balanceVal').className = 'sc-value '+(bal>=0?'green':'red');
-    document.getElementById('balanceSub').textContent = 'הכנסות ₪ פחות הוצאות ישראל';
+    const balILS = totalILS - israelTotal;
+    document.getElementById('balanceILS').textContent = '₪'+balILS.toLocaleString('he-IL',{maximumFractionDigits:0});
+    document.getElementById('balanceILS').className = 'sc-value '+(balILS>=0?'green':'red');
+    document.getElementById('balanceILSSub').textContent = balILS>=0?'עודף החודש':'גירעון החודש';
   } else {
-    document.getElementById('balanceVal').textContent = '—';
-    document.getElementById('balanceVal').className = 'sc-value gold';
-    document.getElementById('balanceSub').textContent = 'הכנס הכנסות לחישוב';
+    document.getElementById('balanceILS').textContent = '—';
+    document.getElementById('balanceILS').className = 'sc-value gold';
+    document.getElementById('balanceILSSub').textContent = 'הכנס הכנסות ₪';
+  }
+
+  // Balance SOL
+  if (totalSOL > 0) {
+    const balSOL = totalSOL - peruTotal;
+    document.getElementById('balanceSOL').textContent = 'S/'+balSOL.toLocaleString('es-PE',{maximumFractionDigits:0});
+    document.getElementById('balanceSOL').className = 'sc-value '+(balSOL>=0?'green':'red');
+    document.getElementById('balanceSOLSub').textContent = balSOL>=0?'עודף החודש':'גירעון החודש';
+  } else {
+    document.getElementById('balanceSOL').textContent = '—';
+    document.getElementById('balanceSOL').className = 'sc-value gold';
+    document.getElementById('balanceSOLSub').textContent = 'הכנס הכנסות S/';
   }
 
   renderWallets(mk, md);
