@@ -856,16 +856,25 @@ async function parsePdf(file, wid) {
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 
 function parseTransactions(text, wid) {
-  const txns=[], lines=text.split('\n');
-  if (wid==='peru') {
-    const re=/(\\d{2}[-\\/]\\w+)\\s+(.{4,40}?)\\s+([\\d,]+\\.\\d{2})\\s+0\\.00/gi;
-    let m; while((m=re.exec(text))!==null){ const a=parseFloat(m[3].replace(',','')); if(a>0&&a<50000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }
-    if(!txns.length){ for(const l of lines){ const m=l.match(/(\\d{2}[-\\/]\\w{2,3})\\s+(.{4,40}?)\\s+([\\d,]+\\.\\d{2})\\s+0\\.00/); if(m){ const a=parseFloat(m[3].replace(',','')); if(a>0) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }}}
+  const txns = [], lines = text.split('\n');
+  if (wid === 'peru') {
+    for (const line of lines) {
+      const m = line.match(/(\d{2}[-\/]\w+)\s+(.{4,40}?)\s+([\d,]+\.\d{2})\s+0\.00/);
+      if (m) { const a = parseFloat(m[3].replace(',','')); if (a>0&&a<50000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }
+    }
   } else {
-    for(const l of lines){ const m=l.match(/(\\d{2}\\/\\d{2}\\/\\d{4})\\s+(.{3,40}?)\\s+(\\d+\\.?\\d{0,2})\\s/); if(m){ const a=parseFloat(m[3]); if(a>0&&a<100000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }}
-    if(!txns.length){ for(const l of lines){ const m=l.match(/(\\d{2}\\/\\d{2}\\/\\d{4})\\s+([^\\d]+?)\\s+([\\d,]+\\.?\\d{0,2})/); if(m){ const d=m[2].trim(),a=parseFloat(m[3].replace(',','')); if(a>0&&d.length>2) txns.push({date:m[1],desc:d,amount:a,cat:classify(wid,d),skip:false}); }}}
+    for (const line of lines) {
+      const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+(.{3,40}?)\s+(\d+\.?\d{0,2})/);
+      if (m) { const a = parseFloat(m[3]); if (a>0&&a<100000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }
+    }
+    if (!txns.length) {
+      for (const line of lines) {
+        const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+([^\d].{2,38}?)\s+([\d,]+\.?\d{0,2})/);
+        if (m) { const d=m[2].trim(),a=parseFloat(m[3].replace(',','')); if(a>0&&d.length>2) txns.push({date:m[1],desc:d,amount:a,cat:classify(wid,d),skip:false}); }
+      }
+    }
   }
-  return txns.slice(0,200);
+  return txns.slice(0, 200);
 }
 
 function renderPdfTxns(txns, wid) {
