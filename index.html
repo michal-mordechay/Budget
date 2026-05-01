@@ -256,6 +256,7 @@
   .rule-keyword { flex: 1; color: var(--text); font-weight: 500; }
   .rule-arrow { color: var(--text3); }
   .rule-cat { color: var(--text2); }
+  .rule-cat-select { font-size: 12px; padding: 3px 6px; color: var(--text); background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; }
   .rule-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; }
   .rule-del:hover { color: var(--red); }
 
@@ -457,7 +458,7 @@ const DEFAULT_RULES = {
   peru: {
     'wong':'supermarket','tottus':'supermarket','vivanda':'supermarket',
     'rappi':'supermarket','makro':'supermarket','compania food':'supermarket',
-    'carestino':'supermarket','alimentando':'supermarket','mercattino':'supermarket',
+    'carestino':'kids','alimentando':'supermarket','mercattino':'supermarket',
     'jet market':'supermarket','estacion':'supermarket','la sanahoria':'supermarket',
     'fresquicarnes':'meat','fresquilamar':'meat',
     'restaurante':'restaurant','mozart':'restaurant','talbot':'restaurant',
@@ -787,10 +788,17 @@ function renderRulesList(walletId) {
   const rules = state.rules[walletId] || {};
   const entries = Object.entries(rules);
   if (!entries.length) return '<div class="text-small">אין חוקים</div>';
+  const w = WALLETS_DEF.find(x=>x.id===walletId);
   return entries.map(([kw,catId]) => {
-    const w = WALLETS_DEF.find(x=>x.id===walletId);
-    const catName = w?.categories.find(c=>c.id===catId)?.name||catId;
-    return `<div class="rule-row"><span class="rule-keyword">${kw}</span><span class="rule-arrow">→</span><span class="rule-cat">${catName}</span><button class="rule-del" onclick="deleteRule('${walletId}','${kw}')">✕</button></div>`;
+    const opts = w.categories.map(cc =>
+      `<option value="${cc.id}" ${cc.id===catId?'selected':''}>${cc.name}</option>`
+    ).join('');
+    return `<div class="rule-row">
+      <span class="rule-keyword">${kw}</span>
+      <span class="rule-arrow">→</span>
+      <select class="rule-cat-select" onchange="updateRule('${walletId}','${kw}',this.value)">${opts}</select>
+      <button class="rule-del" onclick="deleteRule('${walletId}','${kw}')">✕</button>
+    </div>`;
   }).join('');
 }
 
@@ -859,6 +867,7 @@ function addManualEntry(wid) {
 function deleteManual(wid,idx){ const mk=getMonthKey(currentDate); getMonthData(mk).manualEntries[wid].splice(idx,1); saveState(); }
 function addRule(wid){ const kw=document.getElementById('rule-kw-'+wid).value.trim(); const cat=document.getElementById('rule-cat-'+wid).value; if(!kw)return; learnRule(wid,kw,cat); document.getElementById('rule-kw-'+wid).value=''; }
 function deleteRule(wid,kw){ delete state.rules[wid][kw]; saveState(); }
+function updateRule(wid,kw,newCat){ state.rules[wid][kw]=newCat; saveState(); }
 
 // ═══════════════════════════════════
 //  PDF PARSING
