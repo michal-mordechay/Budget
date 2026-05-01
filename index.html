@@ -168,6 +168,9 @@
   }
   .cat-budget-input:focus { outline: none; border-color: var(--accent2); }
   .cat-actual { width: 80px; text-align: left; font-size: 13px; font-weight: 500; color: var(--text); }
+  .editable-actual { cursor: pointer; border-bottom: 1px dashed var(--border2); transition: color 0.1s; }
+  .editable-actual:hover { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .actual-input { width: 80px; text-align: left; font-size: 13px; font-weight: 500; padding: 2px 4px; border-radius: 4px; }
   .cat-bar-wrap { width: 80px; height: 4px; background: var(--border); border-radius: 2px; }
   .cat-bar { height: 4px; border-radius: 2px; transition: width 0.3s; }
   .cat-bar.ok { background: var(--green); }
@@ -567,6 +570,37 @@ function learnRule(walletId, keyword, catId) {
 }
 
 // ═══════════════════════════════════
+//  ACTUAL EDITING
+// ═══════════════════════════════════
+
+function editActual(span, wid, catId, currentVal) {
+  const w = WALLETS_DEF.find(x => x.id === wid);
+  const sym = w.symbol;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'actual-input';
+  input.value = currentVal;
+  input.style.width = '76px';
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit() {
+    const newVal = parseFloat(input.value) || 0;
+    const mk = getMonthKey(currentDate);
+    const md = getMonthData(mk);
+    if (!md.actuals[wid]) md.actuals[wid] = {};
+    md.actuals[wid][catId] = newVal;
+    saveState();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { commit(); input.blur(); }
+    if (e.key === 'Escape') { saveState(); }
+  });
+}
+
+// ═══════════════════════════════════
 //  RENDER
 // ═══════════════════════════════════
 
@@ -656,7 +690,7 @@ function renderWallet(w, mk, md, container) {
     const diffText = budget>0||actual>0 ? (diff>=0?`נשאר ${sym}${Math.abs(diff).toFixed(0)}`:`חריגה ${sym}${Math.abs(diff).toFixed(0)}`) : '';
     catRows += `<div class="cat-row">
       <span class="cat-name${c.fixed?' fixed':''}">${c.name}</span>
-      <span class="cat-actual">${sym}${actual.toFixed(0)}</span>
+      <span class="cat-actual editable-actual" title="לחץ לעריכה" onclick="editActual(this,'${w.id}','${c.id}',${actual})">${sym}${actual.toFixed(0)}</span>
       <input class="cat-budget-input" type="number" value="${budget}" onchange="updateBudget('${w.id}','${c.id}',this.value)" title="תקציב">
       <div class="cat-bar-wrap"><div class="cat-bar ${barClass}" style="width:${pct}%"></div></div>
       <span class="cat-diff ${diff>=0?'pos':'neg'}">${diffText}</span>
