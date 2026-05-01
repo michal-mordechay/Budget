@@ -979,25 +979,84 @@ async function parsePdf(file, wid) {
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 
 function parseTransactions(text, wid) {
-  const txns = [], lines = text.split('\n');
+  // Interbank PDF has columns separated: all dates, then "Comercio", then all names, then all amounts
+  // Need column-based parsing, not line-based regex
   if (wid === 'peru') {
-    for (const line of lines) {
-      const m = line.match(/(\d{2}[-\/]\w+)\s+(.{4,40}?)\s+([\d,]+\.\d{2})\s+0\.00/);
-      if (m) { const a = parseFloat(m[3].replace(',','')); if (a>0&&a<50000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }
-    }
+    return parseInterbankColumns(text);
   } else {
+    return parseIsraeliBank(text);
+  }
+}
+
+function parseInterbankColumns(text) {
+  const txns = [];
+  const dateRe = /^\d{2}-[A-Za-z]{3}$/;
+  const amountRe = /^\d{1,4}(?:,\d{3})*\.\d{2}$/;
+  const sections = text.split('TUS CONSUMOS');
+
+  for (const section of sections.slice(1)) {
+    const end = section.indexOf('SUBTOTAL');
+    const chunk = end > 0 ? section.slice(0, end) : section;
+    const lines = chunk.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    const skipWords = new Set(['Comercio','Fecha','S/','US$','MICHAL MORDECHAY',
+      'DOR TOBOLSKI','MORDECHAY','Comercio\\nFecha']);
+    const dates = [], names = [], amounts = [];
+    let state = 'before';
+
     for (const line of lines) {
-      const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+(.{3,40}?)\s+(\d+\.?\d{0,2})/);
-      if (m) { const a = parseFloat(m[3]); if (a>0&&a<100000) txns.push({date:m[1],desc:m[2].trim(),amount:a,cat:classify(wid,m[2]),skip:false}); }
+      if (skipWords.has(line)) {
+        if (line === 'Comercio') state = 'names';
+        continue;
+      }
+      if (state === 'before') {
+        if (dateRe.test(line)) dates.push(line);
+      } else if (state === 'names') {
+        if (amountRe.test(line)) {
+          state = 'amounts';
+          amounts.push(parseFloat(line.replace(',','')));
+        } else {
+          names.push(line);
+        }
+      } else if (state === 'amounts') {
+        if (amountRe.test(line)) amounts.push(parseFloat(line.replace(',','')));
+      }
     }
-    if (!txns.length) {
-      for (const line of lines) {
-        const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+([^\d].{2,38}?)\s+([\d,]+\.?\d{0,2})/);
-        if (m) { const d=m[2].trim(),a=parseFloat(m[3].replace(',','')); if(a>0&&d.length>2) txns.push({date:m[1],desc:d,amount:a,cat:classify(wid,d),skip:false}); }
+
+    const pairs = Math.min(dates.length, names.length);
+    for (let i = 0; i < pairs; i++) {
+      const amount = amounts[i] || 0;
+      if (amount > 0) {
+        txns.push({ date: dates[i], desc: names[i], amount, cat: classify('peru', names[i]), skip: false });
       }
     }
   }
-  return txns.slice(0, 200);
+  return txns;
+}
+
+function parseIsraeliBank(text) {
+  const txns = [];
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const dateRe = /^\d{2}\/\d{2}\/\d{4}$/;
+  const amountRe = /^[\d,]+\.?\d{0,2}$/;
+
+  // Israeli format: date on one line, description on next, amount somewhere
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (dateRe.test(lines[i])) {
+      const date = lines[i];
+      const desc = lines[i+1];
+      // Look for amount in next few lines
+      for (let j = i+2; j < Math.min(i+5, lines.length); j++) {
+        const clean = lines[j].replace(',','');
+        if (amountRe.test(lines[j]) && parseFloat(clean) > 0 && parseFloat(clean) < 100000) {
+          txns.push({ date, desc, amount: parseFloat(clean), cat: classify('michal', desc), skip: false });
+          i = j;
+          break;
+        }
+      }
+    }
+  }
+  return txns;
 }
 
 function renderPdfTxns(txns, wid) {
