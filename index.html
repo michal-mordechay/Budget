@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תקציב משפחתי — טובולסקי</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #17171e;
+    --surface2: #1e1e28;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0ede8;
+    --text2: #8a8799;
+    --text3: #55535f;
+    --accent: #c8a96e;
+    --accent2: #7e6ef0;
+    --green: #5db882;
+    --red: #e06060;
+    --orange: #e09050;
+    --ils: #3a7bd5;
+    --sol: #c8a96e;
+    --r: 12px;
+    --r2: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .app { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px; padding-bottom: 20px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .header-title { font-family: 'Frank Ruhl Libre', serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .header-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .month-nav { display: flex; align-items: center; gap: 12px; }
+  .month-nav button {
+    background: var(--surface2); border: 0.5px solid var(--border);
+    color: var(--text2); border-radius: var(--r2); padding: 6px 12px;
+    cursor: pointer; font-family: 'Heebo', sans-serif; font-size: 13px;
+    transition: background 0.15s;
+  }
+  .month-nav button:hover { background: var(--surface); color: var(--text); }
+  .month-label { font-size: 15px; font-weight: 500; min-width: 120px; text-align: center; }
+
+  /* ── Summary Bar ── */
+  .summary-bar {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 32px;
+  }
+  .summary-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--r); padding: 16px 18px;
+  }
+  .summary-card.income { border-color: rgba(93,184,130,0.25); }
+  .summary-card.expense { border-color: rgba(224,96,96,0.25); }
+  .summary-card.balance { border-color: rgba(200,169,110,0.3); }
+  .sc-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .sc-value { font-size: 22px; font-weight: 500; }
+  .sc-value.green { color: var(--green); }
+  .sc-value.red { color: var(--red); }
+  .sc-value.gold { color: var(--accent); }
+  .sc-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .sc-edit-btn {
+    background: none; border: none; color: var(--text3); cursor: pointer;
+    font-size: 11px; margin-top: 8px; padding: 0; font-family: 'Heebo', sans-serif;
+    text-decoration: underline;
+  }
+  .sc-edit-btn:hover { color: var(--text2); }
+
+  /* ── Income Editor ── */
+  .income-editor {
+    background: var(--surface2); border: 0.5px solid var(--border);
+    border-radius: var(--r); padding: 20px; margin-bottom: 24px;
+    display: none;
+  }
+  .income-editor.open { display: block; }
+  .income-editor h3 { font-size: 14px; font-weight: 500; margin-bottom: 16px; color: var(--text2); }
+  .income-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .income-row input[type="text"] { flex: 1; }
+  .income-row input[type="number"] { width: 140px; }
+  .income-row select { width: 80px; }
+
+  /* ── Wallets ── */
+  .wallets { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  .wallet {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--r); overflow: hidden;
+  }
+  .wallet-header {
+    padding: 16px 20px; display: flex; align-items: center;
+    justify-content: space-between; border-bottom: 0.5px solid var(--border);
+  }
+  .wallet-name { font-weight: 500; font-size: 15px; }
+  .wallet-currency {
+    font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500;
+  }
+  .wallet-currency.sol { background: rgba(200,169,110,0.15); color: var(--sol); }
+  .wallet-currency.ils { background: rgba(58,123,213,0.15); color: var(--ils); }
+  .wallet-total { font-size: 13px; color: var(--text2); }
+  .wallet-total strong { color: var(--text); }
+
+  /* ── Categories ── */
+  .categories { padding: 12px 0; }
+  .cat-row {
+    display: flex; align-items: center; padding: 8px 20px; gap: 10px;
+    border-bottom: 0.5px solid var(--border); transition: background 0.1s;
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-row:hover { background: var(--surface2); }
+  .cat-name { flex: 1; font-size: 13px; color: var(--text2); }
+  .cat-budget-input {
+    width: 90px; text-align: left; font-size: 13px;
+    background: var(--surface2); border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 4px 8px; color: var(--text);
+    font-family: 'Heebo', sans-serif;
+  }
+  .cat-budget-input:focus { outline: none; border-color: var(--accent2); }
+  .cat-actual { width: 80px; text-align: left; font-size: 13px; color: var(--text2); }
+  .cat-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; }
+  .cat-bar { height: 4px; border-radius: 2px; transition: width 0.3s; }
+  .cat-bar.ok { background: var(--green); }
+  .cat-bar.warn { background: var(--orange); }
+  .cat-bar.over { background: var(--red); }
+  .cat-diff { width: 65px; text-align: left; font-size: 12px; }
+  .cat-diff.pos { color: var(--green); }
+  .cat-diff.neg { color: var(--red); }
+
+  .cat-header {
+    display: flex; padding: 6px 20px; gap: 10px;
+    font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .cat-header span:first-child { flex: 1; }
+  .cat-header span { width: 80px; text-align: left; }
+  .cat-header span:nth-child(3) { width: 90px; }
+  .cat-header span:nth-child(5) { width: 65px; }
+
+  /* ── Wallet Actions ── */
+  .wallet-actions {
+    padding: 12px 20px; border-top: 0.5px solid var(--border);
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 7px 14px; border-radius: var(--r2); font-size: 12px;
+    cursor: pointer; font-family: 'Heebo', sans-serif; font-weight: 500;
+    border: 0.5px solid var(--border); transition: all 0.15s;
+  }
+  .btn-ghost { background: transparent; color: var(--text2); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-primary { background: var(--accent2); color: white; border-color: var(--accent2); }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-green { background: rgba(93,184,130,0.15); color: var(--green); border-color: rgba(93,184,130,0.25); }
+  .btn-green:hover { background: rgba(93,184,130,0.25); }
+
+  /* ── Manual Entry Panel ── */
+  .manual-panel {
+    background: var(--surface2); border-top: 0.5px solid var(--border);
+    padding: 16px 20px; display: none;
+  }
+  .manual-panel.open { display: block; }
+  .manual-panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
+  .manual-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 11px; color: var(--text3); }
+  input, select, textarea {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--r2); padding: 7px 10px; color: var(--text);
+    font-family: 'Heebo', sans-serif; font-size: 13px;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent2); }
+  select option { background: var(--surface); }
+  .manual-list { margin-top: 12px; }
+  .manual-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    border-bottom: 0.5px solid var(--border); font-size: 12px;
+  }
+  .manual-item:last-child { border-bottom: none; }
+  .manual-item-desc { flex: 1; color: var(--text2); }
+  .manual-item-cat { font-size: 11px; color: var(--text3); padding: 2px 6px; background: var(--surface); border-radius: 4px; }
+  .manual-item-amount { color: var(--text); font-weight: 500; }
+  .manual-item-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 0 4px; }
+  .manual-item-del:hover { color: var(--red); }
+
+  /* ── PDF Panel ── */
+  .pdf-panel {
+    background: var(--surface2); border-top: 0.5px solid var(--border);
+    padding: 16px 20px; display: none;
+  }
+  .pdf-panel.open { display: block; }
+  .pdf-panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+  .pdf-drop {
+    border: 1.5px dashed var(--border); border-radius: var(--r);
+    padding: 24px; text-align: center; cursor: pointer;
+    transition: border-color 0.15s; color: var(--text3); font-size: 13px;
+  }
+  .pdf-drop:hover { border-color: var(--accent2); color: var(--text2); }
+  .pdf-drop.drag { border-color: var(--accent2); background: rgba(126,110,240,0.05); }
+  .pdf-transactions { margin-top: 12px; }
+  .pdf-tx {
+    display: flex; align-items: center; gap: 8px; padding: 7px 0;
+    border-bottom: 0.5px solid var(--border); font-size: 12px;
+  }
+  .pdf-tx:last-child { border-bottom: none; }
+  .pdf-tx-date { color: var(--text3); min-width: 70px; }
+  .pdf-tx-desc { flex: 1; color: var(--text2); }
+  .pdf-tx-cat select { font-size: 11px; padding: 3px 6px; }
+  .pdf-tx-amount { color: var(--text); font-weight: 500; min-width: 70px; text-align: left; }
+  .pdf-tx-skip { font-size: 11px; color: var(--text3); cursor: pointer; }
+  .pdf-tx-skip:hover { color: var(--red); }
+  .pdf-tx.skipped { opacity: 0.4; }
+  .pdf-apply-btn { margin-top: 12px; }
+
+  /* ── Category Rules ── */
+  .rules-panel {
+    background: var(--surface2); border-top: 0.5px solid var(--border);
+    padding: 16px 20px; display: none;
+  }
+  .rules-panel.open { display: block; }
+  .rules-panel h4 { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+  .rule-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 12px; }
+  .rule-keyword { flex: 1; color: var(--text); }
+  .rule-cat { color: var(--text3); }
+  .rule-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; }
+  .rule-del:hover { color: var(--red); }
+
+  /* ── Tags / pills ── */
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 500;
+  }
+  .tag-peru { background: rgba(200,169,110,0.12); color: var(--sol); }
+  .tag-michal { background: rgba(58,123,213,0.12); color: var(--ils); }
+  .tag-dor { background: rgba(126,110,240,0.12); color: var(--accent2); }
+
+  /* ── Utilities ── */
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .mt8 { margin-top: 8px; }
+  .mt12 { margin-top: 12px; }
+  .divider { height: 0.5px; background: var(--border); margin: 12px 0; }
+  .text-small { font-size: 11px; color: var(--text3); }
+  .placeholder-note {
+    font-size: 11px; color: var(--text3); font-style: italic;
+    padding: 4px 8px; background: rgba(255,255,255,0.03); border-radius: 4px;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .wallets { grid-template-columns: 1fr; }
+    .summary-bar { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="header-title">תקציב טובולסקי</div>
+      <div class="header-sub">מעקב הוצאות משפחתי · פרו + ישראל</div>
+    </div>
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">&#8250;</button>
+      <div class="month-label" id="monthLabel"></div>
+      <button onclick="changeMonth(1)">&#8249;</button>
+    </div>
+  </div>
+
+  <!-- Summary Bar -->
+  <div class="summary-bar">
+    <div class="summary-card income">
+      <div class="sc-label">הכנסות החודש</div>
+      <div class="sc-value green" id="totalIncome">₪0</div>
+      <div class="sc-sub" id="incomeBreakdown">לא הוזן עדיין</div>
+      <button class="sc-edit-btn" onclick="toggleIncomeEditor()">✏ עריכה</button>
+    </div>
+    <div class="summary-card expense">
+      <div class="sc-label">הוצאות פרו</div>
+      <div class="sc-value" id="totalPeru" style="color:var(--sol)">S/0</div>
+      <div class="sc-sub" id="peruVsBudget"></div>
+    </div>
+    <div class="summary-card expense">
+      <div class="sc-label">הוצאות ישראל</div>
+      <div class="sc-value" id="totalIsrael" style="color:var(--ils)">₪0</div>
+      <div class="sc-sub" id="israelVsBudget"></div>
+    </div>
+    <div class="summary-card balance">
+      <div class="sc-label">יתרה משוערת</div>
+      <div class="sc-value gold" id="balanceVal">—</div>
+      <div class="sc-sub" id="balanceSub">הכנסות פחות הוצאות</div>
+    </div>
+  </div>
+
+  <!-- Income Editor -->
+  <div class="income-editor" id="incomeEditor">
+    <h3>הכנסות החודש</h3>
+    <div id="incomeRows"></div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="btn btn-ghost" onclick="addIncomeRow()">+ הוספת שורה</button>
+      <button class="btn btn-green" onclick="saveIncome()">שמירה</button>
+    </div>
+  </div>
+
+  <!-- Wallets -->
+  <div class="wallets" id="wallets"></div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA MODEL
+// ═══════════════════════════════════════════════
+
+const WALLETS_DEF = [
+  {
+    id: 'peru',
+    name: 'פרו',
+    currency: 'SOL',
+    symbol: 'S/',
+    tag: 'tag-peru',
+    categories: [
+      { id: 'supermarket', name: 'סופרמרקט / מכולת', budget: 2800 },
+      { id: 'restaurant',  name: 'מסעדות וקפה',       budget: 1600 },
+      { id: 'meat',        name: 'בשר / Fresquicarnes', budget: 350 },
+      { id: 'health',      name: 'בריאות / תרופות',   budget: 400 },
+      { id: 'kids',        name: 'ילדים / תינוק',      budget: 250 },
+      { id: 'clothes',     name: 'קניות / ביגוד',      budget: 400 },
+      { id: 'transport',   name: 'תחבורה (Uber)',       budget: 250 },
+      { id: 'home',        name: 'בית / ציוד',          budget: 280 },
+      { id: 'beauty',      name: 'ספא / יופי',          budget: 120 },
+      { id: 'househelp',   name: 'עזרה בבית',           budget: 150 },
+      { id: 'misc',        name: 'שונות',               budget: 300 },
+    ]
+  },
+  {
+    id: 'michal',
+    name: 'ישראל — מיכל',
+    currency: 'ILS',
+    symbol: '₪',
+    tag: 'tag-michal',
+    categories: [
+      { id: 'insurance_health', name: 'ביטוח בריאות (הראל + כללית)', budget: 338 },
+      { id: 'insurance_life',   name: 'ביטוח חיים (הראל)',           budget: 48  },
+      { id: 'phone',            name: 'טלפון (טלזר 019)',             budget: 20  },
+      { id: 'subscriptions',    name: 'מנויים (Adobe, Spotify)',      budget: 130 },
+      { id: 'card_fee',         name: 'דמי כרטיס',                   budget: 19  },
+      { id: 'misc_il',          name: 'שונות',                       budget: 100 },
+    ]
+  },
+  {
+    id: 'dor',
+    name: 'ישראל — דור',
+    currency: 'ILS',
+    symbol: '₪',
+    tag: 'tag-dor',
+    categories: [
+      { id: 'insurance_d',     name: 'ביטוחים',    budget: 0 },
+      { id: 'subscriptions_d', name: 'מנויים',     budget: 0 },
+      { id: 'misc_d',          name: 'שונות',       budget: 0 },
+    ],
+    placeholder: true
+  },
+];
+
+// Default classification rules: keyword → category id (per wallet)
+const DEFAULT_RULES = {
+  peru: {
+    'wong': 'supermarket', 'tottus': 'supermarket', 'vivanda': 'supermarket',
+    'rappi': 'supermarket', 'makro': 'supermarket', 'compania food': 'supermarket',
+    'carestino': 'supermarket', 'alimentando': 'supermarket', 'mercattino': 'supermarket',
+    'wong online': 'supermarket', 'jet market': 'supermarket', 'estacion': 'supermarket',
+    'fresquicarnes': 'meat', 'fresquilamar': 'meat',
+    'restaurante': 'restaurant', 'mozart': 'restaurant', 'talbot': 'restaurant',
+    'cafeteria': 'restaurant', 'cafe': 'restaurant', 'starbucks': 'restaurant',
+    'napoleon': 'restaurant', 'la cristina': 'restaurant', 'sienna bakery': 'restaurant',
+    'hebraica': 'restaurant', 'amador': 'restaurant', 'hanzo': 'restaurant',
+    'lila': 'restaurant', 'pastipan': 'restaurant', 'flor que latte': 'restaurant',
+    'mifarma': 'health', 'inkafarma': 'health', 'clinica': 'health', 'farmacia': 'health',
+    'uber': 'transport', 'taxi': 'transport', 'apparka': 'transport', 'peaje': 'transport',
+    'falabella': 'clothes', 'zara': 'clothes', 'gap': 'clothes',
+    'sodimac': 'home', 'eden agua': 'home', 'liderman': 'home', 'casa ideas': 'home',
+    'mori valles': 'beauty', 'salon': 'beauty', 'maribeat': 'beauty',
+    'nuababy': 'kids', 'magiape': 'kids', 'infanti': 'kids',
+    'silvana': 'househelp',
+  },
+  michal: {
+    'הראל ביטוח בריאות': 'insurance_health', 'שרותי בריאות': 'insurance_health',
+    'סעוד הראל': 'insurance_health',
+    'הראל ביטוח חיים': 'insurance_life',
+    'טלזר': 'phone',
+    'spotify': 'subscriptions', 'adobe': 'subscriptions', 'albume': 'subscriptions',
+    'דמי כרטיס': 'card_fee',
+  },
+  dor: {},
+};
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+
+let currentDate = new Date();
+let state = loadState();
+
+function getMonthKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function getMonthData(mk) {
+  if (!state.months[mk]) {
+    state.months[mk] = { income: [], actuals: {}, manualEntries: {} };
+  }
+  const m = state.months[mk];
+  if (!m.income) m.income = [];
+  if (!m.actuals) m.actuals = {};
+  if (!m.manualEntries) m.manualEntries = {};
+  return m;
+}
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('tobolski_budget_v1') || '{}');
+    if (!s.months) s.months = {};
+    if (!s.budgets) {
+      s.budgets = {};
+      WALLETS_DEF.forEach(w => {
+        s.budgets[w.id] = {};
+        w.categories.forEach(c => { s.budgets[w.id][c.id] = c.budget; });
+      });
+    }
+    if (!s.rules) s.rules = JSON.parse(JSON.stringify(DEFAULT_RULES));
+    return s;
+  } catch(e) { return { months: {}, budgets: {}, rules: JSON.parse(JSON.stringify(DEFAULT_RULES)) }; }
+}
+
+function saveState() {
+  localStorage.setItem('tobolski_budget_v1', JSON.stringify(state));
+  render();
+}
+
+// ═══════════════════════════════════════════════
+//  CLASSIFICATION
+// ═══════════════════════════════════════════════
+
+function classify(walletId, description) {
+  const rules = state.rules[walletId] || {};
+  const desc = description.toLowerCase();
+  for (const [keyword, catId] of Object.entries(rules)) {
+    if (desc.includes(keyword.toLowerCase())) return catId;
+  }
+  return 'misc';
+}
+
+function learnRule(walletId, keyword, catId) {
+  if (!state.rules[walletId]) state.rules[walletId] = {};
+  state.rules[walletId][keyword.toLowerCase().trim()] = catId;
+  saveState();
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+
+function render() {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+
+  // Month label
+  const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  document.getElementById('monthLabel').textContent = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+  // Income total
+  const totalIncome = md.income.reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
+  document.getElementById('totalIncome').textContent = '₪' + totalIncome.toLocaleString('he-IL', {maximumFractionDigits:0});
+  document.getElementById('incomeBreakdown').textContent = md.income.length ?
+    md.income.map(r => `${r.label}: ₪${parseFloat(r.amount).toLocaleString('he-IL',{maximumFractionDigits:0})}`).join(' · ') :
+    'לחץ על עריכה להוספת הכנסות';
+
+  // Wallet totals
+  let totalPeru = 0, totalIsrael = 0;
+  WALLETS_DEF.forEach(w => {
+    const actuals = md.actuals[w.id] || {};
+    const manuals = md.manualEntries[w.id] || [];
+    let total = 0;
+    w.categories.forEach(c => { total += (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0); });
+    if (w.currency==='SOL') totalPeru += total;
+    else totalIsrael += total;
+  });
+
+  const peruBudget = WALLETS_DEF.find(w=>w.id==='peru').categories.reduce((s,c)=>s+(state.budgets.peru[c.id]||0),0);
+  const israelBudget = ['michal','dor'].reduce((s,wid)=>{
+    const w = WALLETS_DEF.find(x=>x.id===wid);
+    return s + w.categories.reduce((ss,c)=>ss+(state.budgets[wid]?.[c.id]||0),0);
+  },0);
+
+  document.getElementById('totalPeru').textContent = 'S/' + totalPeru.toLocaleString('es-PE', {maximumFractionDigits:0});
+  document.getElementById('peruVsBudget').textContent = `תקציב: S/${peruBudget.toLocaleString('es-PE',{maximumFractionDigits:0})}`;
+  document.getElementById('totalIsrael').textContent = '₪' + totalIsrael.toLocaleString('he-IL', {maximumFractionDigits:0});
+  document.getElementById('israelVsBudget').textContent = `תקציב: ₪${israelBudget.toLocaleString('he-IL',{maximumFractionDigits:0})}`;
+
+  // Balance (rough: income - israel expenses; peru separate currency)
+  if (totalIncome > 0) {
+    const bal = totalIncome - totalIsrael;
+    document.getElementById('balanceVal').textContent = '₪' + bal.toLocaleString('he-IL',{maximumFractionDigits:0});
+    document.getElementById('balanceVal').className = 'sc-value ' + (bal >= 0 ? 'green' : 'red');
+    document.getElementById('balanceSub').textContent = 'הכנסות פחות ישראל (פרו נפרד)';
+  } else {
+    document.getElementById('balanceVal').textContent = '—';
+    document.getElementById('balanceVal').className = 'sc-value gold';
+  }
+
+  // Render wallets
+  renderWallets(mk, md);
+}
+
+function renderWallets(mk, md) {
+  const container = document.getElementById('wallets');
+  container.innerHTML = '';
+  WALLETS_DEF.forEach(w => renderWallet(w, mk, md, container));
+}
+
+function renderWallet(w, mk, md, container) {
+  const actuals = md.actuals[w.id] || {};
+  const manuals = md.manualEntries[w.id] || [];
+  const budgets = state.budgets[w.id] || {};
+
+  let walletTotal = 0;
+  let walletBudget = 0;
+  w.categories.forEach(c => {
+    const a = (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
+    walletTotal += a;
+    walletBudget += (budgets[c.id]||0);
+  });
+
+  const el = document.createElement('div');
+  el.className = 'wallet';
+  el.id = 'wallet-' + w.id;
+
+  const currClass = w.currency === 'SOL' ? 'sol' : 'ils';
+  const sym = w.symbol;
+
+  let catRows = '';
+  w.categories.forEach(c => {
+    const actual = (actuals[c.id]||0) + manuals.filter(m=>m.cat===c.id).reduce((s,m)=>s+(parseFloat(m.amount)||0),0);
+    const budget = budgets[c.id] || 0;
+    const pct = budget > 0 ? Math.min((actual/budget)*100, 100) : (actual > 0 ? 100 : 0);
+    const barClass = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    const diff = budget - actual;
+    const diffClass = diff >= 0 ? 'pos' : 'neg';
+    const diffText = diff >= 0 ? `נשאר ${sym}${Math.abs(diff).toFixed(0)}` : `חריגה ${sym}${Math.abs(diff).toFixed(0)}`;
+
+    catRows += `
+      <div class="cat-row">
+        <span class="cat-name">${c.name}</span>
+        <span class="cat-actual">${sym}${actual.toFixed(0)}</span>
+        <input class="cat-budget-input" type="number" value="${budget}"
+          onchange="updateBudget('${w.id}','${c.id}',this.value)"
+          title="תקציב">
+        <div class="cat-bar-wrap"><div class="cat-bar ${barClass}" style="width:${pct}%"></div></div>
+        <span class="cat-diff ${diffClass}">${budget > 0 || actual > 0 ? diffText : ''}</span>
+      </div>`;
+  });
+
+  const phNote = w.placeholder ? `<div class="placeholder-note" style="padding:12px 20px">⚠ נתוני דור — ממתין לפירוט אשראי</div>` : '';
+
+  el.innerHTML = `
+    <div class="wallet-header">
+      <div>
+        <span class="wallet-name">${w.name}</span>
+        <span class="tag ${w.tag}" style="margin-right:8px">${w.currency}</span>
+        ${w.placeholder ? '<span style="font-size:11px;color:var(--orange);margin-right:6px">PLACEHOLDER</span>' : ''}
+      </div>
+      <span class="wallet-total">ביצוע: <strong>${sym}${walletTotal.toFixed(0)}</strong> / תקציב: ${sym}${walletBudget.toFixed(0)}</span>
+    </div>
+    <div class="categories">
+      <div class="cat-header">
+        <span>קטגוריה</span>
+        <span>ביצוע</span>
+        <span>תקציב</span>
+        <span></span>
+        <span>הפרש</span>
+      </div>
+      ${catRows}
+    </div>
+    ${phNote}
+    <div class="wallet-actions">
+      <button class="btn btn-ghost" onclick="toggleManual('${w.id}')">+ הוספה ידנית</button>
+      <button class="btn btn-ghost" onclick="togglePdf('${w.id}')">📄 העלאת PDF</button>
+      <button class="btn btn-ghost" onclick="toggleRules('${w.id}')">⚙ חוקי סיווג</button>
+    </div>
+    <div class="manual-panel" id="manual-${w.id}">
+      <h4>הוספת הוצאה ידנית (העברה בנקאית / מזומן)</h4>
+      <div class="manual-form">
+        <div class="form-group">
+          <label>תיאור</label>
+          <input type="text" id="m-desc-${w.id}" placeholder="תיאור ההוצאה" style="width:160px">
+        </div>
+        <div class="form-group">
+          <label>סכום (${w.currency})</label>
+          <input type="number" id="m-amount-${w.id}" placeholder="0" style="width:90px">
+        </div>
+        <div class="form-group">
+          <label>קטגוריה</label>
+          <select id="m-cat-${w.id}">
+            ${w.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>תאריך</label>
+          <input type="date" id="m-date-${w.id}" value="${new Date().toISOString().split('T')[0]}" style="width:130px">
+        </div>
+        <button class="btn btn-green" onclick="addManualEntry('${w.id}')">הוספה</button>
+      </div>
+      <div class="manual-list" id="manual-list-${w.id}">
+        ${renderManualList(w, manuals)}
+      </div>
+    </div>
+    <div class="pdf-panel" id="pdf-${w.id}">
+      <h4>העלאת פירוט PDF (${w.currency === 'SOL' ? 'Interbank' : 'בנק יהב / ישראכרט / לאומי'})</h4>
+      <div class="pdf-drop" id="pdf-drop-${w.id}"
+        onclick="document.getElementById('pdf-file-${w.id}').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handlePdfDrop(event,'${w.id}')">
+        לחץ או גרור קובץ PDF לכאן
+        <br><span style="font-size:11px;opacity:0.6">הטקסט יופק אוטומטית ויסווג לקטגוריות</span>
+      </div>
+      <input type="file" id="pdf-file-${w.id}" accept=".pdf" style="display:none"
+        onchange="handlePdfFile(event,'${w.id}')">
+      <div class="pdf-transactions" id="pdf-txns-${w.id}"></div>
+      <div id="pdf-apply-wrap-${w.id}"></div>
+    </div>
+    <div class="rules-panel" id="rules-${w.id}">
+      <h4>חוקי סיווג אוטומטי — ${w.name}</h4>
+      <div id="rules-list-${w.id}">${renderRulesList(w.id)}</div>
+      <div style="display:flex;gap:8px;margin-top:12px;align-items:flex-end">
+        <div class="form-group">
+          <label>מילת מפתח</label>
+          <input type="text" id="rule-kw-${w.id}" placeholder="למשל: rappi" style="width:130px">
+        </div>
+        <div class="form-group">
+          <label>קטגוריה</label>
+          <select id="rule-cat-${w.id}">
+            ${w.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn btn-ghost" onclick="addRule('${w.id}')">+ הוסף</button>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(el);
+}
+
+function renderManualList(w, manuals) {
+  if (!manuals.length) return '<div class="text-small" style="padding:8px 0">אין הוצאות ידניות</div>';
+  return manuals.map((m,i) => `
+    <div class="manual-item">
+      <span class="manual-item-desc">${m.desc}</span>
+      <span class="manual-item-cat">${w.categories.find(c=>c.id===m.cat)?.name||m.cat}</span>
+      <span class="manual-item-amount">${w.symbol}${parseFloat(m.amount).toFixed(0)}</span>
+      <span class="manual-item-date text-small">${m.date||''}</span>
+      <button class="manual-item-del" onclick="deleteManual('${w.id}',${i})">✕</button>
+    </div>`).join('');
+}
+
+function renderRulesList(walletId) {
+  const rules = state.rules[walletId] || {};
+  const entries = Object.entries(rules);
+  if (!entries.length) return '<div class="text-small">אין חוקים מוגדרים</div>';
+  return entries.map(([kw, catId]) => {
+    const w = WALLETS_DEF.find(x=>x.id===walletId);
+    const catName = w?.categories.find(c=>c.id===catId)?.name || catId;
+    return `<div class="rule-row">
+      <span class="rule-keyword">${kw}</span>
+      <span>→</span>
+      <span class="rule-cat">${catName}</span>
+      <button class="rule-del" onclick="deleteRule('${walletId}','${kw}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════
+
+function changeMonth(dir) {
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
+  render();
+}
+
+function toggleIncomeEditor() {
+  const el = document.getElementById('incomeEditor');
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) renderIncomeEditor();
+}
+
+function renderIncomeEditor() {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  const rows = document.getElementById('incomeRows');
+  if (!md.income.length) {
+    md.income = [
+      { label: 'משכורת דור', amount: '' },
+      { label: 'קצבת ילדים', amount: '' },
+      { label: 'חד-פעמי', amount: '' },
+    ];
+  }
+  rows.innerHTML = md.income.map((r,i) => `
+    <div class="income-row">
+      <input type="text" value="${r.label}" onchange="updateIncomeLabel(${i},this.value)" style="width:160px">
+      <input type="number" value="${r.amount}" placeholder="0" onchange="updateIncomeAmount(${i},this.value)" style="width:100px">
+      <span style="font-size:12px;color:var(--text3)">₪</span>
+      <button class="manual-item-del" onclick="removeIncomeRow(${i})">✕</button>
+    </div>`).join('');
+}
+
+function updateIncomeLabel(i, val) {
+  const mk = getMonthKey(currentDate);
+  getMonthData(mk).income[i].label = val;
+}
+function updateIncomeAmount(i, val) {
+  const mk = getMonthKey(currentDate);
+  getMonthData(mk).income[i].amount = val;
+}
+function addIncomeRow() {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  md.income.push({ label: '', amount: '' });
+  renderIncomeEditor();
+}
+function removeIncomeRow(i) {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  md.income.splice(i, 1);
+  renderIncomeEditor();
+}
+function saveIncome() {
+  saveState();
+  document.getElementById('incomeEditor').classList.remove('open');
+}
+
+function updateBudget(walletId, catId, value) {
+  if (!state.budgets[walletId]) state.budgets[walletId] = {};
+  state.budgets[walletId][catId] = parseFloat(value)||0;
+  saveState();
+}
+
+function toggleManual(walletId) {
+  const el = document.getElementById('manual-' + walletId);
+  el.classList.toggle('open');
+}
+function togglePdf(walletId) {
+  const el = document.getElementById('pdf-' + walletId);
+  el.classList.toggle('open');
+}
+function toggleRules(walletId) {
+  const el = document.getElementById('rules-' + walletId);
+  el.classList.toggle('open');
+}
+
+function addManualEntry(walletId) {
+  const desc = document.getElementById('m-desc-'+walletId).value.trim();
+  const amount = document.getElementById('m-amount-'+walletId).value;
+  const cat = document.getElementById('m-cat-'+walletId).value;
+  const date = document.getElementById('m-date-'+walletId).value;
+  if (!desc || !amount) return alert('נא למלא תיאור וסכום');
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  if (!md.manualEntries[walletId]) md.manualEntries[walletId] = [];
+  md.manualEntries[walletId].push({ desc, amount: parseFloat(amount), cat, date });
+  document.getElementById('m-desc-'+walletId).value = '';
+  document.getElementById('m-amount-'+walletId).value = '';
+  saveState();
+}
+
+function deleteManual(walletId, idx) {
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  md.manualEntries[walletId].splice(idx, 1);
+  saveState();
+}
+
+function addRule(walletId) {
+  const kw = document.getElementById('rule-kw-'+walletId).value.trim();
+  const cat = document.getElementById('rule-cat-'+walletId).value;
+  if (!kw) return;
+  learnRule(walletId, kw, cat);
+  document.getElementById('rule-kw-'+walletId).value = '';
+}
+
+function deleteRule(walletId, keyword) {
+  delete state.rules[walletId][keyword];
+  saveState();
+}
+
+// ═══════════════════════════════════════════════
+//  PDF PARSING
+// ═══════════════════════════════════════════════
+
+async function handlePdfDrop(event, walletId) {
+  event.preventDefault();
+  document.getElementById('pdf-drop-'+walletId).classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') await parsePdf(file, walletId);
+}
+
+async function handlePdfFile(event, walletId) {
+  const file = event.target.files[0];
+  if (file) await parsePdf(file, walletId);
+}
+
+async function parsePdf(file, walletId) {
+  const drop = document.getElementById('pdf-drop-'+walletId);
+  drop.textContent = 'קורא את הקובץ...';
+
+  try {
+    // Load PDF.js from CDN
+    if (!window.pdfjsLib) {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      fullText += content.items.map(item => item.str).join(' ') + '\n';
+    }
+
+    const txns = parseTransactions(fullText, walletId);
+    renderPdfTransactions(txns, walletId);
+    drop.textContent = `נמצאו ${txns.length} עסקאות — אשרי קטגוריות ולחצי "החל"`;
+  } catch(e) {
+    drop.textContent = 'שגיאה בקריאת הקובץ. נסי קובץ אחר.';
+    console.error(e);
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function parseTransactions(text, walletId) {
+  const txns = [];
+  const lines = text.split('\n');
+
+  if (walletId === 'peru') {
+    // Interbank format: date, merchant, amount
+    const re = /(\d{2}[-\/]\w+[-\/]\d{2,4}|\d{1,2}[-\/]\w{2,3})\s+(.+?)\s+([\d,]+\.?\d{0,2})\s*0\.00/gi;
+    const re2 = /(\d{2}[-\/]\w+)\s+(.{4,40}?)\s+([\d,]+\.\d{2})\s+0\.00/gi;
+    let m;
+    while ((m = re2.exec(text)) !== null) {
+      const desc = m[2].trim();
+      const amount = parseFloat(m[3].replace(',',''));
+      if (amount > 0 && amount < 50000) {
+        txns.push({ date: m[1], desc, amount, cat: classify(walletId, desc), skip: false });
+      }
+    }
+    // Fallback: line-by-line heuristic
+    if (!txns.length) {
+      for (const line of lines) {
+        const m = line.match(/(\d{2}[-\/]\w{2,3})\s+(.{4,40}?)\s+([\d,]+\.\d{2})\s+0\.00/);
+        if (m) {
+          const amount = parseFloat(m[3].replace(',',''));
+          if (amount > 0) txns.push({ date: m[1], desc: m[2].trim(), amount, cat: classify(walletId, m[2]), skip: false });
+        }
+      }
+    }
+  } else {
+    // Israeli bank format: date, description, amount in ₪
+    for (const line of lines) {
+      const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+(.{3,40}?)\s+(\d+\.?\d{0,2})\s/);
+      if (m) {
+        const amount = parseFloat(m[3]);
+        if (amount > 0 && amount < 100000) {
+          txns.push({ date: m[1], desc: m[2].trim(), amount, cat: classify(walletId, m[2]), skip: false });
+        }
+      }
+    }
+    // Second pass for Hebrew bank statements
+    if (!txns.length) {
+      for (const line of lines) {
+        const m = line.match(/(\d{2}\/\d{2}\/\d{4})\s+([^\d]+?)\s+([\d,]+\.?\d{0,2})/);
+        if (m) {
+          const desc = m[2].trim();
+          const amount = parseFloat(m[3].replace(',',''));
+          if (amount > 0 && desc.length > 2) {
+            txns.push({ date: m[1], desc, amount, cat: classify(walletId, desc), skip: false });
+          }
+        }
+      }
+    }
+  }
+
+  return txns.slice(0, 200); // cap
+}
+
+// Store parsed txns temporarily
+const pendingTxns = {};
+
+function renderPdfTransactions(txns, walletId) {
+  pendingTxns[walletId] = txns;
+  const w = WALLETS_DEF.find(x=>x.id===walletId);
+  const container = document.getElementById('pdf-txns-'+walletId);
+  const applyWrap = document.getElementById('pdf-apply-wrap-'+walletId);
+
+  if (!txns.length) {
+    container.innerHTML = '<div class="text-small" style="padding:8px 0">לא זוהו עסקאות. ייתכן שפורמט ה-PDF שונה.</div>';
+    applyWrap.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = txns.map((t,i) => `
+    <div class="pdf-tx ${t.skip?'skipped':''}" id="pdf-tx-${walletId}-${i}">
+      <span class="pdf-tx-date">${t.date}</span>
+      <span class="pdf-tx-desc">${t.desc}</span>
+      <span class="pdf-tx-cat">
+        <select onchange="updateTxCat('${walletId}',${i},this.value)">
+          ${w.categories.map(c=>`<option value="${c.id}" ${c.id===t.cat?'selected':''}>${c.name}</option>`).join('')}
+        </select>
+      </span>
+      <span class="pdf-tx-amount">${w.symbol}${t.amount.toFixed(0)}</span>
+      <span class="pdf-tx-skip" onclick="toggleSkipTx('${walletId}',${i})">${t.skip?'↩ שחזר':'✕ דלג'}</span>
+    </div>`).join('');
+
+  applyWrap.innerHTML = `
+    <div class="pdf-apply-btn" style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-primary" onclick="applyPdfTxns('${walletId}')">החל הכל (${txns.filter(t=>!t.skip).length} עסקאות)</button>
+      <span class="text-small">הסיווג יישמר לפעם הבאה</span>
+    </div>`;
+}
+
+function updateTxCat(walletId, idx, catId) {
+  if (pendingTxns[walletId]) {
+    const t = pendingTxns[walletId][idx];
+    t.cat = catId;
+    // Learn rule
+    const keyword = t.desc.toLowerCase().trim().split(' ').slice(0,3).join(' ');
+    learnRule(walletId, keyword, catId);
+  }
+}
+
+function toggleSkipTx(walletId, idx) {
+  if (pendingTxns[walletId]) {
+    pendingTxns[walletId][idx].skip = !pendingTxns[walletId][idx].skip;
+    renderPdfTransactions(pendingTxns[walletId], walletId);
+  }
+}
+
+function applyPdfTxns(walletId) {
+  const txns = pendingTxns[walletId] || [];
+  const mk = getMonthKey(currentDate);
+  const md = getMonthData(mk);
+  if (!md.actuals[walletId]) md.actuals[walletId] = {};
+
+  // Clear existing PDF actuals and rebuild
+  const w = WALLETS_DEF.find(x=>x.id===walletId);
+  w.categories.forEach(c => { md.actuals[walletId][c.id] = 0; });
+
+  txns.filter(t=>!t.skip).forEach(t => {
+    md.actuals[walletId][t.cat] = (md.actuals[walletId][t.cat]||0) + t.amount;
+  });
+
+  saveState();
+  document.getElementById('pdf-'+walletId).classList.remove('open');
+  alert(`הוחלו ${txns.filter(t=>!t.skip).length} עסקאות בהצלחה`);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+
+render();
+</script>
+</body>
+</html>
